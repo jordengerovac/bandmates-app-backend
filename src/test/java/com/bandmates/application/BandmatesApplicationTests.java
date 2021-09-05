@@ -1,4 +1,4 @@
-package com.bandmates.bandmates;
+package com.bandmates.application;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

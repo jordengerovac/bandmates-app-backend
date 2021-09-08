@@ -1,6 +1,7 @@
 package com.bandmates.application.service.impl;
 
 import com.bandmates.application.domain.AppUser;
+import com.bandmates.application.domain.Profile;
 import com.bandmates.application.domain.Role;
 import com.bandmates.application.repository.RoleRepository;
 import com.bandmates.application.repository.UserRepository;
@@ -78,5 +79,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public List<AppUser> getAllUsers() {
         log.info("Fetching all users from database");
         return userRepository.findAll();
+    }
+
+    @Override
+    public Profile getUserProfile(String username) {
+        AppUser user = userRepository.findByUsername(username);
+        return user.getProfile();
     }
 }

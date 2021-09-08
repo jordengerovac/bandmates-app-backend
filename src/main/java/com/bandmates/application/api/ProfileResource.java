@@ -23,20 +23,21 @@ public class ProfileResource {
         return ResponseEntity.ok(profileService.getAllProfiles());
     }
 
-    @GetMapping("/profile/{profileId}")
+    @GetMapping("/profiles/{profileId}")
     public ResponseEntity<Profile> getProfile(@PathVariable Long profileId) {
         return ResponseEntity.ok(profileService.getProfile(profileId));
     }
 
-    @PostMapping("/profile/create")
-    public ResponseEntity<Profile> createUser(@RequestBody Profile profile) {
+    @PostMapping("/profiles/create")
+    public ResponseEntity<Profile> createProfile(@RequestBody Profile profile) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v1/profile/create").toUriString());
         return ResponseEntity.created(uri).body(profileService.saveProfile(profile));
     }
 
-    @PostMapping("/profile/{profileId}/add-to-user/{username}")
-    public ResponseEntity<Profile> addProfileToUser(@PathVariable Long profileId, @PathVariable String username) {
-        profileService.addProfileToUser(username, profileId);
+    @PostMapping("/profiles/users/{username}")
+    public ResponseEntity<Profile> createProfileForUser(@RequestBody Profile profile, @PathVariable String username) {
+        Profile createdProfile = profileService.saveProfile(profile);
+        profileService.addProfileToUser(username, createdProfile.getId());
         return ResponseEntity.ok().build();
     }
 }

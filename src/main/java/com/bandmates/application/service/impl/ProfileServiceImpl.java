@@ -35,6 +35,7 @@ public class ProfileServiceImpl implements ProfileService {
         AppUser user = userRepository.findByUsername(username);
         Optional<Profile> profile = profileRepository.findById(profileId);
         if (profile.isPresent()) {
+            profile.get().setUser(user);
             user.setProfile(profile.get());
         }
         else {

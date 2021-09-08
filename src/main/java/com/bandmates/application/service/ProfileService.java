@@ -11,4 +11,6 @@ public interface ProfileService {
     Profile getProfile(Long profileId);
 
     List<Profile> getAllProfiles();
+
+    Profile updateProfile(Profile profile, Long id);
 }

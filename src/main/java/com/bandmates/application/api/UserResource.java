@@ -47,6 +47,10 @@ public class UserResource {
     @PostMapping("/users/create")
     public ResponseEntity<AppUser> createUser(@RequestBody AppUser user) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v1/user/create").toUriString());
+        AppUser existingUser = userService.getUser(user.getUsername());
+        if (existingUser != null) {
+            return ResponseEntity.badRequest().body(null);
+        }
         return ResponseEntity.created(uri).body(userService.saveUser(user));
     }
 

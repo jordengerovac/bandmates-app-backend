@@ -34,6 +34,12 @@ public class ProfileResource {
         return ResponseEntity.created(uri).body(profileService.saveProfile(profile));
     }
 
+    @PutMapping("/profiles/update/{id}")
+    public ResponseEntity<Profile> updateProfile(@RequestBody Profile profile, @PathVariable Long id) {
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v1/profile/update").toUriString());
+        return ResponseEntity.created(uri).body(profileService.updateProfile(profile, id));
+    }
+
     @PostMapping("/profiles/users/{username}")
     public ResponseEntity<Profile> createProfileForUser(@RequestBody Profile profile, @PathVariable String username) {
         Profile createdProfile = profileService.saveProfile(profile);

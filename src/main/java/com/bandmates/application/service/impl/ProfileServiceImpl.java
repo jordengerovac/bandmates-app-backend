@@ -53,4 +53,20 @@ public class ProfileServiceImpl implements ProfileService {
     public List<Profile> getAllProfiles() {
         return profileRepository.findAll();
     }
+
+    @Override
+    public Profile updateProfile(Profile profile, Long id) {
+        Optional<Profile> oldProfile = profileRepository.findById(id);
+        if (oldProfile.isPresent()) {
+            if (profile.getUser() != null)
+                oldProfile.get().setUser(profile.getUser());
+            if (profile.getBio() != null)
+                oldProfile.get().setBio(profile.getBio());
+            if (profile.getSpotifyData() != null)
+                oldProfile.get().setSpotifyData(profile.getSpotifyData());
+
+            return profileRepository.save(oldProfile.get());
+        }
+        return null;
+    }
 }

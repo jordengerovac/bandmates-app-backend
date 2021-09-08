@@ -35,6 +35,7 @@ public class BandmatesApplication {
 
 			userService.addRoleToUser("tt", "ROLE_USER");
 			userService.addRoleToUser("js", "ROLE_ADMIN");
+			userService.addRoleToUser("js", "ROLE_USER");
 		};
 	}
 

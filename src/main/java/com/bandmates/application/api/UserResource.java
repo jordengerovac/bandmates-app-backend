@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.bandmates.application.domain.AppUser;
+import com.bandmates.application.domain.Profile;
 import com.bandmates.application.domain.Role;
 import com.bandmates.application.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,19 +39,28 @@ public class UserResource {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @PostMapping("/user/create")
+    @GetMapping("/users/{username}/profiles")
+    public ResponseEntity<Profile> getUserProfile(@PathVariable String username) {
+        return ResponseEntity.ok(userService.getUserProfile(username));
+    }
+
+    @PostMapping("/users/create")
     public ResponseEntity<AppUser> createUser(@RequestBody AppUser user) {
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v1/create-user").toUriString());
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v1/user/create").toUriString());
+        AppUser existingUser = userService.getUser(user.getUsername());
+        if (existingUser != null) {
+            return ResponseEntity.badRequest().body(null);
+        }
         return ResponseEntity.created(uri).body(userService.saveUser(user));
     }
 
-    @PostMapping("/role/create")
+    @PostMapping("/roles/create")
     public ResponseEntity<Role> createRole(@RequestBody Role role) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v1/create-role").toUriString());
         return ResponseEntity.created(uri).body(userService.saveRole(role));
     }
 
-    @PostMapping("/role/add-to-user")
+    @PostMapping("/roles/add-to-user")
     public ResponseEntity<?> addRoleToUser(@RequestBody RoleToUserForm form) {
         userService.addRoleToUser(form.getUsername(), form.getUsername());
         return ResponseEntity.ok().build();
@@ -74,6 +84,7 @@ public class UserResource {
                                 .stream().map(Role::getName).collect(Collectors.toList()))
                         .sign(algorithm);
                 Map<String, String> tokens = new HashMap<>();
+                tokens.put("username", username);
                 tokens.put("access_token", access_token);
                 tokens.put("refresh_token", refresh_token);
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);

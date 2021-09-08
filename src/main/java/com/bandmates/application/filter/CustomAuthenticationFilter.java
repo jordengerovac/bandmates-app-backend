@@ -56,6 +56,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
                 .withIssuer(request.getRequestURL().toString())
                 .sign(algorithm);
         Map<String, String> tokens = new HashMap<>();
+        tokens.put("username", user.getUsername());
         tokens.put("access_token", access_token);
         tokens.put("refresh_token", refresh_token);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

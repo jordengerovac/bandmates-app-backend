@@ -6,29 +6,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AppUser {
+public class Profile {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String firstname;
+    private String bio;
 
-    private String lastname;
-
-    private String username;
-
-    private String password;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    private Collection<Role> roles = new ArrayList<>();
+    @OneToOne(fetch = FetchType.EAGER)
+    private SpotifyData spotifyData;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Profile profile;
+    @JsonIgnoreProperties("profile")
+    private AppUser user;
 }

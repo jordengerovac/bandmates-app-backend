@@ -1,6 +1,7 @@
 package com.bandmates.application.service;
 
 import com.bandmates.application.domain.AppUser;
+import com.bandmates.application.domain.Profile;
 import com.bandmates.application.domain.Role;
 
 import java.util.List;
@@ -15,4 +16,6 @@ public interface UserService {
     AppUser getUser(String username);
 
     List<AppUser> getAllUsers();
+
+    Profile getUserProfile(String username);
 }

@@ -1,6 +1,7 @@
 package com.bandmates.application;
 
 import com.bandmates.application.domain.AppUser;
+import com.bandmates.application.domain.Profile;
 import com.bandmates.application.domain.Role;
 import com.bandmates.application.service.UserService;
 import org.springframework.boot.CommandLineRunner;
@@ -28,8 +29,8 @@ public class BandmatesApplication {
 			userService.saveRole(new Role(null, "ROLE_USER"));
 			userService.saveRole(new Role(null, "ROLE_ADMIN"));
 
-			userService.saveUser(new AppUser(null, "Tim Tyler", "tt", "password", new ArrayList<>()));
-			userService.saveUser(new AppUser(null, "Jordan Scott", "js", "password", new ArrayList<>()));
+			userService.saveUser(new AppUser(null, "Tim", "Tyler", "tt", "tt@gmail.com", "password", new ArrayList<>(), null));
+			userService.saveUser(new AppUser(null, "Jordan", "Scott", "js", "js@gmail.com", "password", new ArrayList<>(), null));
 
 			userService.addRoleToUser("tt", "ROLE_USER");
 			userService.addRoleToUser("js", "ROLE_ADMIN");

@@ -3,6 +3,7 @@ package com.bandmates.application;
 import com.bandmates.application.domain.AppUser;
 import com.bandmates.application.domain.Profile;
 import com.bandmates.application.domain.Role;
+import com.bandmates.application.service.ProfileService;
 import com.bandmates.application.service.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;

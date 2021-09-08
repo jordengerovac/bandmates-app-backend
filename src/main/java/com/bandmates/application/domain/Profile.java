@@ -1,5 +1,6 @@
 package com.bandmates.application.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,13 +18,10 @@ public class Profile {
 
     private String bio;
 
-    private String email;
-
-    private String phone;
-
     @OneToOne(fetch = FetchType.EAGER)
     private SpotifyData spotifyData;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("profile")
     private AppUser user;
 }

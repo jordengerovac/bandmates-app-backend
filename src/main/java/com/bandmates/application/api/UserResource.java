@@ -41,6 +41,11 @@ public class UserResource {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @GetMapping("/users/{username}")
+    public ResponseEntity<AppUser> getUser(@PathVariable  String username) {
+        return ResponseEntity.ok(userService.getUser(username));
+    }
+
     @GetMapping("/users/{username}/profiles")
     public ResponseEntity<Profile> getUserProfile(@PathVariable String username) {
         return ResponseEntity.ok(userService.getUserProfile(username));

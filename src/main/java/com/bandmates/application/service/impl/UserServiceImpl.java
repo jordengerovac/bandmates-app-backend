@@ -8,6 +8,7 @@ import com.bandmates.application.repository.UserRepository;
 import com.bandmates.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -79,6 +80,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public List<AppUser> getAllUsers() {
         log.info("Fetching all users from database");
         return userRepository.findAll();
+    }
+
+    @Override
+    public List<AppUser> searchUsers(Specification<AppUser> specification) {
+        log.info("Searching users in database");
+        return userRepository.findAll(Specification.where(specification));
     }
 
     @Override

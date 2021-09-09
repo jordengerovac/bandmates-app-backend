@@ -3,6 +3,7 @@ package com.bandmates.application.service;
 import com.bandmates.application.domain.AppUser;
 import com.bandmates.application.domain.Profile;
 import com.bandmates.application.domain.Role;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 
@@ -16,6 +17,8 @@ public interface UserService {
     AppUser getUser(String username);
 
     List<AppUser> getAllUsers();
+
+    List<AppUser> searchUsers(Specification<AppUser> specification);
 
     Profile getUserProfile(String username);
 }

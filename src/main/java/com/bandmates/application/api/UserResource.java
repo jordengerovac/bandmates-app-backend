@@ -9,9 +9,11 @@ import com.bandmates.application.domain.Profile;
 import com.bandmates.application.domain.Role;
 import com.bandmates.application.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sipios.springsearch.anotation.SearchSpec;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -64,6 +66,11 @@ public class UserResource {
     public ResponseEntity<?> addRoleToUser(@RequestBody RoleToUserForm form) {
         userService.addRoleToUser(form.getUsername(), form.getUsername());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/users/query")
+    public ResponseEntity<List<AppUser>> searchForCars(@SearchSpec Specification<AppUser> specs) {
+        return ResponseEntity.ok(userService.searchUsers(Specification.where(specs)));
     }
 
     @GetMapping("/token/refresh")

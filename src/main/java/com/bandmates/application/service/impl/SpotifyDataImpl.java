@@ -5,10 +5,10 @@ import com.bandmates.application.domain.SpotifyData;
 import com.bandmates.application.repository.ProfileRepository;
 import com.bandmates.application.repository.SpotifyDataRepository;
 import com.bandmates.application.service.SpotifyDataService;
-import com.bandmates.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -29,6 +29,15 @@ public class SpotifyDataImpl implements SpotifyDataService {
     private final SpotifyDataRepository spotifyDataRepository;
 
     private final ProfileRepository profileRepository;
+
+    @Value("${spotify.tokenUrl}")
+    private String spotifyTokenUrl;
+
+    @Value("${spotify.clientId}")
+    private String spotifyClientId;
+
+    @Value("${spotify.clientSecret}")
+    private String spotifyClientSecret;
 
     @Override
     public SpotifyData saveSpotifyData(SpotifyData spotifyData) {
@@ -74,7 +83,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
     public Map<String, String> getSpotifyTokensFromCode(String code) {
         try {
             // connection
-            URL url = new URL("https://accounts.spotify.com/api/token/");
+            URL url = new URL(spotifyTokenUrl);
             String urlParams = "code=" + code + "&grant_type=authorization_code&redirect_uri=http://localhost:3000/connect-spotify";
             byte[] urlData = urlParams.getBytes(StandardCharsets.UTF_8);
             int urlDataLength = urlData.length;
@@ -84,9 +93,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
             con.setInstanceFollowRedirects(false);
 
             // authentication
-            String client_id = "95c5f746df16436882efa3d4ebf3b9fa";
-            String client_secret = "bcebc262d914462cbeb58c81f454dfaf";
-            String auth = client_id + ":" + client_secret;
+            String auth = spotifyClientId + ":" + spotifyClientId;
             byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
             String authHeader = "Basic " + new String(encodedAuth);
             con.setRequestProperty("Authorization", authHeader);

@@ -20,6 +20,7 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -92,5 +93,27 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Profile getUserProfile(String username) {
         AppUser user = userRepository.findByUsername(username);
         return user.getProfile();
+    }
+
+    @Override
+    public AppUser updateUser(AppUser user, Long id) {
+        Optional<AppUser> oldUser = userRepository.findById(id);
+        if (oldUser.isPresent()) {
+            if (user.getUsername() != null)
+                oldUser.get().setUsername(user.getUsername());
+            if (user.getFirstname() != null)
+                oldUser.get().setFirstname(user.getFirstname());
+            if (user.getLastname() != null)
+                oldUser.get().setLastname(user.getLastname());
+            if (user.getPassword() != null)
+                oldUser.get().setPassword(user.getPassword());
+            if (user.getPassword() != null)
+                oldUser.get().setProfile(user.getProfile());
+            if (user.getRoles() != null)
+                oldUser.get().setRoles(user.getRoles());
+
+            return userRepository.save(oldUser.get());
+        }
+        return null;
     }
 }

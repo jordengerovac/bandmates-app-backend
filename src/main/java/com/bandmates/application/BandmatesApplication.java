@@ -34,7 +34,6 @@ public class BandmatesApplication {
 			userService.saveUser(new AppUser(null, "Jordan", "Scott", "js@gmail.com", "password", new ArrayList<>(), null));
 
 			userService.addRoleToUser("tt@gmail.com", "ROLE_USER");
-			userService.addRoleToUser("js@gmail.com", "ROLE_ADMIN");
 			userService.addRoleToUser("js@gmail.com", "ROLE_USER");
 		};
 	}

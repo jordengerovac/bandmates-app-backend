@@ -1,5 +1,6 @@
 package com.bandmates.application.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,11 @@ public class SpotifyData {
 
     private String topGenre;
 
+    private String spotifyAccessToken;
+
+    private String spotifyRefreshToken;
+
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("spotifyData")
     private Profile profile;
 }

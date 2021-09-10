@@ -44,6 +44,11 @@
 			<version>3.18.1</version>
 		</dependency>
 		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20180130</version>
+		</dependency>
+		<dependency>
 			<groupId>com.sipios</groupId>
 			<artifactId>spring-search</artifactId>
 			<version>0.2.0</version>

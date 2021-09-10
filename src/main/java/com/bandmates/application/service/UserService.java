@@ -21,4 +21,6 @@ public interface UserService {
     List<AppUser> searchUsers(Specification<AppUser> specification);
 
     Profile getUserProfile(String username);
+
+    AppUser updateUser(AppUser user, Long id);
 }

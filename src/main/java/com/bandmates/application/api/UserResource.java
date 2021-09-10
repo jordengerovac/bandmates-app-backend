@@ -41,6 +41,11 @@ public class UserResource {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @GetMapping("/users/{username}")
+    public ResponseEntity<AppUser> getUser(@PathVariable  String username) {
+        return ResponseEntity.ok(userService.getUser(username));
+    }
+
     @GetMapping("/users/{username}/profiles")
     public ResponseEntity<Profile> getUserProfile(@PathVariable String username) {
         return ResponseEntity.ok(userService.getUserProfile(username));
@@ -54,6 +59,12 @@ public class UserResource {
             return ResponseEntity.badRequest().body(null);
         }
         return ResponseEntity.created(uri).body(userService.saveUser(user));
+    }
+
+    @PutMapping("/users/update/{id}")
+    public ResponseEntity<AppUser> updateUser(@RequestBody AppUser user, @PathVariable Long id) {
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v1/user/update").toUriString());
+        return ResponseEntity.created(uri).body(userService.updateUser(user, id));
     }
 
     @PostMapping("/roles/create")

@@ -34,7 +34,7 @@ public class SpotifyDataResource {
     }
 
     @GetMapping("/spotifydata/fetch/{id}")
-    public ResponseEntity<SpotifyData> fetchSpotifyData(@PathVariable Long id) {
+    public ResponseEntity<SpotifyData> fetchSpotifyData(@PathVariable String username) {
         log.info("Fetching spotify data");
         return null;
     }

@@ -61,6 +61,12 @@ public class UserResource {
         return ResponseEntity.created(uri).body(userService.saveUser(user));
     }
 
+    @PutMapping("/users/update/{id}")
+    public ResponseEntity<AppUser> updateUser(@RequestBody AppUser user, @PathVariable Long id) {
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v1/user/update").toUriString());
+        return ResponseEntity.created(uri).body(userService.updateUser(user, id));
+    }
+
     @PostMapping("/roles/create")
     public ResponseEntity<Role> createRole(@RequestBody Role role) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v1/create-role").toUriString());

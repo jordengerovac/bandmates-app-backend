@@ -1,19 +1,25 @@
 package com.bandmates.application.service.impl;
 
-import com.bandmates.application.domain.AppUser;
 import com.bandmates.application.domain.Profile;
-import com.bandmates.application.domain.Role;
 import com.bandmates.application.domain.SpotifyData;
 import com.bandmates.application.repository.ProfileRepository;
 import com.bandmates.application.repository.SpotifyDataRepository;
 import com.bandmates.application.service.SpotifyDataService;
+import com.bandmates.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Optional;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -63,4 +69,62 @@ public class SpotifyDataImpl implements SpotifyDataService {
         }
         return null;
     }
+
+    @Override
+    public Map<String, String> getSpotifyTokensFromCode(String code) {
+        try {
+            // connection
+            URL url = new URL("https://accounts.spotify.com/api/token/");
+            String urlParams = "code=" + code + "&grant_type=authorization_code&redirect_uri=http://localhost:3000/connect-spotify";
+            byte[] urlData = urlParams.getBytes(StandardCharsets.UTF_8);
+            int urlDataLength = urlData.length;
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("POST");
+            con.setDoOutput(true);
+            con.setInstanceFollowRedirects(false);
+
+            // authentication
+            String client_id = "95c5f746df16436882efa3d4ebf3b9fa";
+            String client_secret = "bcebc262d914462cbeb58c81f454dfaf";
+            String auth = client_id + ":" + client_secret;
+            byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
+            String authHeader = "Basic " + new String(encodedAuth);
+            con.setRequestProperty("Authorization", authHeader);
+
+            con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            con.setRequestProperty("charset", "utf-8");
+            con.setRequestProperty("Content-Length", Integer.toString(urlDataLength));
+            con.setUseCaches(false);
+            try (DataOutputStream dataOutputStream = new DataOutputStream(con.getOutputStream())) {
+                dataOutputStream.write(urlData);
+            }
+
+            // reading response
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer content = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+            in.close();
+            con.disconnect();
+
+            JSONObject jsonObject = new JSONObject(content.toString());
+            Map<String, String> tokenMap = new HashMap<>();
+            for(String key : jsonObject.keySet()) {
+                tokenMap.put(key, String.valueOf(jsonObject.get(key)));
+            }
+
+            return tokenMap;
+        } catch(IOException exception) {
+            log.error(exception.getMessage());
+            return null;
+        }
+    }
+
+    public SpotifyData getUpdatedSpotifyData(Long id) {
+        return null;
+    }
+
 }

@@ -93,7 +93,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
             con.setInstanceFollowRedirects(false);
 
             // authentication
-            String auth = spotifyClientId + ":" + spotifyClientId;
+            String auth = spotifyClientId + ":" + spotifyClientSecret;
             byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
             String authHeader = "Basic " + new String(encodedAuth);
             con.setRequestProperty("Authorization", authHeader);

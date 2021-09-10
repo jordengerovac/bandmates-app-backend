@@ -2,6 +2,7 @@ package com.bandmates.application.api;
 
 import com.bandmates.application.domain.Profile;
 import com.bandmates.application.domain.SpotifyData;
+import com.bandmates.application.service.ProfileService;
 import com.bandmates.application.service.SpotifyDataService;
 import com.bandmates.application.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.websocket.server.PathParam;
 import java.io.*;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -23,6 +25,8 @@ public class SpotifyDataResource {
 
     private final UserService userService;
 
+    private final ProfileService profileService;
+
     @PostMapping("/spotifydata/initialize/{username}")
     public ResponseEntity<SpotifyData> initializeSpotifyData(@PathVariable String username, @PathParam("code") String code) throws IOException {
         log.info("Initializing spotify data");
@@ -30,12 +34,19 @@ public class SpotifyDataResource {
         Profile profile = userService.getUserProfile(username);
         SpotifyData spotifyData = spotifyDataService.saveSpotifyData(new SpotifyData(null, "", tokenMap.get("access_token"), tokenMap.get("refresh_token"), profile));
         profile.setSpotifyData(spotifyData);
+        profileService.saveProfile(profile);
         return ResponseEntity.ok(spotifyData);
     }
 
-    @GetMapping("/spotifydata/fetch/{id}")
-    public ResponseEntity<SpotifyData> fetchSpotifyData(@PathVariable String username) {
+    @GetMapping("/spotifydata/fetch/{username}")
+    public ResponseEntity<SpotifyData> fetchUpdatedSpotifyData(@PathVariable String username) {
         log.info("Fetching spotify data");
-        return null;
+        return ResponseEntity.ok(spotifyDataService.fetchUpdatedSpotifyData(username));
+    }
+
+    @GetMapping("/spotifydata")
+    public ResponseEntity<List<SpotifyData>> getAllSpotifyData() {
+        log.info("Fetching all spotify data");
+        return ResponseEntity.ok(spotifyDataService.getAllSpotifyData());
     }
 }

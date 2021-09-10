@@ -4,7 +4,9 @@ import com.bandmates.application.domain.Profile;
 import com.bandmates.application.domain.SpotifyData;
 import com.bandmates.application.repository.ProfileRepository;
 import com.bandmates.application.repository.SpotifyDataRepository;
+import com.bandmates.application.service.ProfileService;
 import com.bandmates.application.service.SpotifyDataService;
+import com.bandmates.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -30,14 +32,19 @@ public class SpotifyDataImpl implements SpotifyDataService {
 
     private final ProfileRepository profileRepository;
 
-    @Value("${spotify.tokenUrl}")
-    private String spotifyTokenUrl;
+    private final UserService userService;
 
     @Value("${spotify.clientId}")
     private String spotifyClientId;
 
     @Value("${spotify.clientSecret}")
     private String spotifyClientSecret;
+
+    @Value("${spotify.tokenUrl}")
+    private String spotifyTokenUrl;
+
+    @Value("${spotify.recentlyPlayedUrl}")
+    private String spotifyRecentlyPlayedUrl;
 
     @Override
     public SpotifyData saveSpotifyData(SpotifyData spotifyData) {
@@ -93,7 +100,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
             con.setInstanceFollowRedirects(false);
 
             // authentication
-            String auth = spotifyClientId + ":" + spotifyClientId;
+            String auth = spotifyClientId + ":" + spotifyClientSecret;
             byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
             String authHeader = "Basic " + new String(encodedAuth);
             con.setRequestProperty("Authorization", authHeader);
@@ -130,8 +137,54 @@ public class SpotifyDataImpl implements SpotifyDataService {
         }
     }
 
-    public SpotifyData getUpdatedSpotifyData(Long id) {
-        return null;
+    @Override
+    public SpotifyData fetchUpdatedSpotifyData(String username) {
+        try {
+            // connection
+            URL url = new URL(spotifyRecentlyPlayedUrl);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            con.setDoOutput(true);
+            con.setInstanceFollowRedirects(false);
+
+            // authentication
+            Profile profile = userService.getUserProfile(username);
+            SpotifyData spotifyData = profile.getSpotifyData();
+            String auth = spotifyData.getSpotifyAccessToken();
+            String authHeader = "Bearer " + auth;
+            con.setRequestProperty("Authorization", authHeader);
+
+            con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            con.setRequestProperty("charset", "utf-8");
+            con.setUseCaches(false);
+
+            // reading response
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer content = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+            in.close();
+            con.disconnect();
+
+            /*
+            JSONObject jsonObject = new JSONObject(content.toString());
+            Map<String, String> tokenMap = new HashMap<>();
+            for(String key : jsonObject.keySet()) {
+                tokenMap.put(key, String.valueOf(jsonObject.get(key)));
+            }
+            */
+
+            spotifyData.setTopGenre(content.toString().substring(0, 50));
+            spotifyDataRepository.save(spotifyData);
+
+            return spotifyData;
+        } catch(IOException exception) {
+            log.error(exception.getMessage());
+            return null;
+        }
     }
 
 }

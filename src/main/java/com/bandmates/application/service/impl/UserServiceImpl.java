@@ -109,8 +109,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 oldUser.get().setPassword(user.getPassword());
             if (user.getPassword() != null)
                 oldUser.get().setProfile(user.getProfile());
-            if (user.getRoles() != null)
-                oldUser.get().setRoles(user.getRoles());
 
             return userRepository.save(oldUser.get());
         }

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Data
@@ -17,6 +18,9 @@ public class SpotifyData {
     private Long id;
 
     private String topGenre;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Track> recentTracks;
 
     private String spotifyAccessToken;
 

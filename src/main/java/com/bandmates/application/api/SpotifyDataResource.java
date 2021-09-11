@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.websocket.server.PathParam;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +34,7 @@ public class SpotifyDataResource {
         log.info("Initializing spotify data");
         Map<String, String> tokenMap = spotifyDataService.getSpotifyTokensFromCode(code);
         Profile profile = userService.getUserProfile(username);
-        SpotifyData spotifyData = spotifyDataService.saveSpotifyData(new SpotifyData(null, "", tokenMap.get("access_token"), tokenMap.get("refresh_token"), profile));
+        SpotifyData spotifyData = spotifyDataService.saveSpotifyData(new SpotifyData(null, "", new HashSet<>(),tokenMap.get("access_token"), tokenMap.get("refresh_token"), profile));
         profile.setSpotifyData(spotifyData);
         profileService.saveProfile(profile);
         return ResponseEntity.ok(spotifyData);

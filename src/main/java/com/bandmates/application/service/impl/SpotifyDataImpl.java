@@ -2,13 +2,15 @@ package com.bandmates.application.service.impl;
 
 import com.bandmates.application.domain.Profile;
 import com.bandmates.application.domain.SpotifyData;
+import com.bandmates.application.domain.Track;
 import com.bandmates.application.repository.ProfileRepository;
 import com.bandmates.application.repository.SpotifyDataRepository;
-import com.bandmates.application.service.ProfileService;
+import com.bandmates.application.repository.TrackRepository;
 import com.bandmates.application.service.SpotifyDataService;
 import com.bandmates.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,8 @@ public class SpotifyDataImpl implements SpotifyDataService {
     private final SpotifyDataRepository spotifyDataRepository;
 
     private final ProfileRepository profileRepository;
+
+    private final TrackRepository trackRepository;
 
     private final UserService userService;
 
@@ -224,15 +228,20 @@ public class SpotifyDataImpl implements SpotifyDataService {
             in.close();
             con.disconnect();
 
-            /*
+
             JSONObject jsonObject = new JSONObject(content.toString());
+            JSONArray items = new JSONArray();
+
             Map<String, String> tokenMap = new HashMap<>();
             for(String key : jsonObject.keySet()) {
                 tokenMap.put(key, String.valueOf(jsonObject.get(key)));
+                if (key.equals("items")) {
+                    items = jsonObject.getJSONArray(key);
+                }
             }
-            */
 
             spotifyData.setTopGenre(content.toString().substring(0, 50));
+            spotifyData.setRecentTracks(addTracksToSpotifyData(items));
             spotifyDataRepository.save(spotifyData);
 
             return spotifyData;
@@ -240,6 +249,32 @@ public class SpotifyDataImpl implements SpotifyDataService {
             log.error(exception.getMessage());
             return null;
         }
+    }
+
+    public Set<Track> addTracksToSpotifyData(JSONArray spotifyDataJSON) {
+        log.info("getting tracks");
+        JSONObject jsonObject = null;
+        JSONObject temp = null;
+        Set<Track> trackSet = new HashSet<>();
+        Track track = new Track();
+
+        for(int i = 0; i < spotifyDataJSON.length(); i++) {
+            track = new Track();
+            jsonObject = spotifyDataJSON.getJSONObject(i);
+            track.setSongName(jsonObject.getJSONObject("track").getJSONObject("album").get("name").toString());
+            track.setUri((String) jsonObject.getJSONObject("track").getString("uri"));
+
+            temp = (JSONObject) jsonObject.getJSONObject("track").getJSONObject("album").getJSONArray("artists").get(0);
+            track.setArtist((String) temp.get("name"));
+
+            temp = (JSONObject) jsonObject.getJSONObject("track").getJSONObject("album").getJSONArray("images").get(0);
+            track.setArtwork((String) temp.get("url"));
+
+            trackRepository.save(track);
+            trackSet.add(track);
+        }
+
+        return trackSet;
     }
 
 }

@@ -199,7 +199,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
     public SpotifyData fetchUpdatedSpotifyData(String username) {
         try {
             // connection
-            URL url = new URL(spotifyRecentlyPlayedUrl + "?limit=2");
+            URL url = new URL(spotifyRecentlyPlayedUrl);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
             con.setDoOutput(true);
@@ -259,6 +259,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
         Track track = new Track();
 
         for(int i = 0; i < spotifyDataJSON.length(); i++) {
+            track = new Track();
             jsonObject = spotifyDataJSON.getJSONObject(i);
             track.setSongName(jsonObject.getJSONObject("track").getJSONObject("album").get("name").toString());
             track.setUri((String) jsonObject.getJSONObject("track").getString("uri"));

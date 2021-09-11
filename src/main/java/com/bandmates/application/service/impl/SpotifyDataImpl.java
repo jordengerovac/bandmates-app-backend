@@ -138,6 +138,60 @@ public class SpotifyDataImpl implements SpotifyDataService {
     }
 
     @Override
+    public SpotifyData getSpotifyRefreshToken(Long id) {
+        Optional<SpotifyData> spotifyData = spotifyDataRepository.findById(id);
+        try {
+            // connection
+            URL url = new URL(spotifyTokenUrl);
+            String urlParams = "grant_type=refresh_token&refresh_token=" + spotifyData.get().getSpotifyRefreshToken();
+            byte[] urlData = urlParams.getBytes(StandardCharsets.UTF_8);
+            int urlDataLength = urlData.length;
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("POST");
+            con.setDoOutput(true);
+            con.setInstanceFollowRedirects(false);
+
+            // authentication
+            String auth = spotifyClientId + ":" + spotifyClientSecret;
+            byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
+            String authHeader = "Basic " + new String(encodedAuth);
+            con.setRequestProperty("Authorization", authHeader);
+
+            con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            con.setRequestProperty("charset", "utf-8");
+            con.setRequestProperty("Content-Length", Integer.toString(urlDataLength));
+            con.setUseCaches(false);
+            try (DataOutputStream dataOutputStream = new DataOutputStream(con.getOutputStream())) {
+                dataOutputStream.write(urlData);
+            }
+
+            // reading response
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer content = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+            in.close();
+            con.disconnect();
+
+            JSONObject jsonObject = new JSONObject(content.toString());
+            Map<String, String> tokenMap = new HashMap<>();
+            for(String key : jsonObject.keySet()) {
+                tokenMap.put(key, String.valueOf(jsonObject.get(key)));
+            }
+
+            spotifyData.get().setSpotifyAccessToken(tokenMap.get("access_token"));
+            return spotifyDataRepository.save(spotifyData.get());
+
+        } catch(IOException exception) {
+            log.error(exception.getMessage());
+            return null;
+        }
+    }
+
+    @Override
     public SpotifyData fetchUpdatedSpotifyData(String username) {
         try {
             // connection
@@ -150,6 +204,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
             // authentication
             Profile profile = userService.getUserProfile(username);
             SpotifyData spotifyData = profile.getSpotifyData();
+            getSpotifyRefreshToken(spotifyData.getId());
             String auth = spotifyData.getSpotifyAccessToken();
             String authHeader = "Bearer " + auth;
             con.setRequestProperty("Authorization", authHeader);

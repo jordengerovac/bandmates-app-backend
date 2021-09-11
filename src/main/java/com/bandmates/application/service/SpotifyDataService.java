@@ -9,6 +9,8 @@ import java.util.Map;
 public interface SpotifyDataService {
     Map<String, String> getSpotifyTokensFromCode(String code);
 
+    SpotifyData getSpotifyRefreshToken(Long id);
+
     SpotifyData fetchUpdatedSpotifyData(String username);
 
     SpotifyData saveSpotifyData(SpotifyData spotifyData);

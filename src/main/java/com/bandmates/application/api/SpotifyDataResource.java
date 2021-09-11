@@ -49,4 +49,10 @@ public class SpotifyDataResource {
         log.info("Fetching all spotify data");
         return ResponseEntity.ok(spotifyDataService.getAllSpotifyData());
     }
+
+    @PostMapping("/spotifydata/{id}/token/refresh")
+    public ResponseEntity<SpotifyData> getSpotifyRefreshToken(@PathVariable Long id) {
+        log.info("Fetching spotify refresh token");
+        return ResponseEntity.ok(spotifyDataService.getSpotifyRefreshToken(id));
+    }
 }

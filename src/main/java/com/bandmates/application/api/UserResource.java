@@ -105,6 +105,7 @@ public class UserResource {
                 tokens.put("username", username);
                 tokens.put("access_token", access_token);
                 tokens.put("refresh_token", refresh_token);
+                tokens.put("expires_in", String.valueOf(10 * 60 * 1000));
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                 new ObjectMapper().writeValue(response.getOutputStream(), tokens);
             } catch (Exception exception) {

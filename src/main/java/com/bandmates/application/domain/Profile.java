@@ -18,6 +18,9 @@ public class Profile {
 
     private String bio;
 
+    @Lob
+    private String image;
+
     @OneToOne(fetch = FetchType.EAGER)
     private SpotifyData spotifyData;
 

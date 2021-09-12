@@ -8,9 +8,13 @@ import com.bandmates.application.repository.UserRepository;
 import com.bandmates.application.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,5 +72,30 @@ public class ProfileServiceImpl implements ProfileService {
             return profileRepository.save(oldProfile.get());
         }
         return null;
+    }
+
+    @Override
+    public Profile addImageToProfile(Long id, MultipartFile image) {
+        try {
+            Profile profile = profileRepository.findById(id).get();
+
+            byte[] byteObjects = new byte[image.getBytes().length];
+
+            int i = 0;
+
+            for (byte b : image.getBytes()){
+                byteObjects[i++] = b;
+            }
+
+            String encodedImage = Base64.getEncoder().encodeToString(byteObjects);
+
+            profile.setImage(encodedImage);
+
+            return profileRepository.save(profile);
+
+        } catch (IOException exception) {
+            log.error(exception.getMessage());
+            return null;
+        }
     }
 }

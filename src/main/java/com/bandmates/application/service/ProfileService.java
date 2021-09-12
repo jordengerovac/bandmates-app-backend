@@ -1,6 +1,8 @@
 package com.bandmates.application.service;
 
 import com.bandmates.application.domain.Profile;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 public interface ProfileService {
@@ -13,4 +15,6 @@ public interface ProfileService {
     List<Profile> getAllProfiles();
 
     Profile updateProfile(Profile profile, Long id);
+
+    Profile addImageToProfile(Long id, MultipartFile file);
 }

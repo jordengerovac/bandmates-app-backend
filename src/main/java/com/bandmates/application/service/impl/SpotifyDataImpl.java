@@ -261,14 +261,14 @@ public class SpotifyDataImpl implements SpotifyDataService {
         for(int i = 0; i < spotifyDataJSON.length(); i++) {
             track = new Track();
             jsonObject = spotifyDataJSON.getJSONObject(i);
-            track.setSongName(jsonObject.getJSONObject("track").getJSONObject("album").get("name").toString());
-            track.setUri((String) jsonObject.getJSONObject("track").getString("uri"));
+            track.setSongName(jsonObject.getJSONObject("track").get("name").toString());
+            track.setUri(jsonObject.getJSONObject("track").get("uri").toString());
 
             temp = (JSONObject) jsonObject.getJSONObject("track").getJSONObject("album").getJSONArray("artists").get(0);
-            track.setArtist((String) temp.get("name"));
+            track.setArtist(temp.get("name").toString());
 
             temp = (JSONObject) jsonObject.getJSONObject("track").getJSONObject("album").getJSONArray("images").get(0);
-            track.setArtwork((String) temp.get("url"));
+            track.setArtwork(temp.get("url").toString());
 
             trackRepository.save(track);
             trackSet.add(track);

@@ -6,8 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
@@ -45,5 +47,10 @@ public class ProfileResource {
         Profile createdProfile = profileService.saveProfile(profile);
         profileService.addProfileToUser(username, createdProfile.getId());
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/profiles/image/{id}")
+    public ResponseEntity<Profile> addImageToProfile(@PathVariable Long id, @RequestParam("image") MultipartFile image) {
+        return ResponseEntity.ok(profileService.addImageToProfile(id, image));
     }
 }

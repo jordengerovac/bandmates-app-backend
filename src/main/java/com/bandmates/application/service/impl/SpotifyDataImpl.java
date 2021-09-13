@@ -1,8 +1,10 @@
 package com.bandmates.application.service.impl;
 
+import com.bandmates.application.domain.Artist;
 import com.bandmates.application.domain.Profile;
 import com.bandmates.application.domain.SpotifyData;
 import com.bandmates.application.domain.Track;
+import com.bandmates.application.repository.ArtistRepository;
 import com.bandmates.application.repository.ProfileRepository;
 import com.bandmates.application.repository.SpotifyDataRepository;
 import com.bandmates.application.repository.TrackRepository;
@@ -36,6 +38,8 @@ public class SpotifyDataImpl implements SpotifyDataService {
 
     private final TrackRepository trackRepository;
 
+    private final ArtistRepository artistRepository;
+
     private final UserService userService;
 
     @Value("${spotify.clientId}")
@@ -49,6 +53,12 @@ public class SpotifyDataImpl implements SpotifyDataService {
 
     @Value("${spotify.recentlyPlayedUrl}")
     private String spotifyRecentlyPlayedUrl;
+
+    @Value("${spotify.topArtistsUrl}")
+    private String spotifyTopArtistsUrl;
+
+    @Value("${spotify.topTracksUrl}")
+    private String spotifyTopTracksUrl;
 
     @Override
     public SpotifyData saveSpotifyData(SpotifyData spotifyData) {
@@ -197,6 +207,74 @@ public class SpotifyDataImpl implements SpotifyDataService {
 
     @Override
     public SpotifyData fetchUpdatedSpotifyData(String username) {
+        Profile profile = userService.getUserProfile(username);
+        SpotifyData spotifyData = profile.getSpotifyData();
+        getSpotifyRefreshToken(spotifyData.getId());
+
+        String recentTracks = getRecentTracksFromSpotifyApi(spotifyData);
+        JSONObject jsonObject = new JSONObject(recentTracks);
+        JSONArray items = new JSONArray();
+
+        Map<String, String> tokenMap = new HashMap<>();
+        for(String key : jsonObject.keySet()) {
+            tokenMap.put(key, String.valueOf(jsonObject.get(key)));
+            if (key.equals("items")) {
+                items = jsonObject.getJSONArray(key);
+            }
+        }
+
+
+        // setting recent tracks and deleting old ones
+        for (Track t : spotifyData.getRecentTracks()) {
+            trackRepository.delete(t);
+        }
+        spotifyData.setRecentTracks(addRecentTracksToSpotifyData(items));
+
+
+        // setting top tracks and deleting old ones
+        String topTracks = getTopTracksFromSpotifyApi(spotifyData);
+        jsonObject = new JSONObject(topTracks);
+        items = new JSONArray();
+
+        tokenMap = new HashMap<>();
+        for(String key : jsonObject.keySet()) {
+            tokenMap.put(key, String.valueOf(jsonObject.get(key)));
+            if (key.equals("items")) {
+                items = jsonObject.getJSONArray(key);
+            }
+        }
+        for (Track t : spotifyData.getTopTracks()) {
+            trackRepository.delete(t);
+        }
+        spotifyData.setTopTracks(addTopTracksToSpotifyData(items));
+
+
+        // setting top artists and deleting old ones
+        String topArtists = getTopArtistsFromSpotifyApi(spotifyData);
+        jsonObject = new JSONObject(topArtists);
+        items = new JSONArray();
+
+        tokenMap = new HashMap<>();
+        for(String key : jsonObject.keySet()) {
+            tokenMap.put(key, String.valueOf(jsonObject.get(key)));
+            if (key.equals("items")) {
+                items = jsonObject.getJSONArray(key);
+            }
+        }
+        for (Artist a : spotifyData.getTopArtists()) {
+            artistRepository.delete(a);
+        }
+        spotifyData.setTopArtists(addTopArtistsToSpotifyData(items));
+
+        // TODO: update this with top artists data
+        spotifyData.setTopGenre("Psych$Rock$Blues$");
+
+
+        spotifyDataRepository.save(spotifyData);
+        return spotifyData;
+    }
+
+    public String getRecentTracksFromSpotifyApi(SpotifyData spotifyData) {
         try {
             // connection
             URL url = new URL(spotifyRecentlyPlayedUrl);
@@ -206,9 +284,6 @@ public class SpotifyDataImpl implements SpotifyDataService {
             con.setInstanceFollowRedirects(false);
 
             // authentication
-            Profile profile = userService.getUserProfile(username);
-            SpotifyData spotifyData = profile.getSpotifyData();
-            getSpotifyRefreshToken(spotifyData.getId());
             String auth = spotifyData.getSpotifyAccessToken();
             String authHeader = "Bearer " + auth;
             con.setRequestProperty("Authorization", authHeader);
@@ -228,38 +303,87 @@ public class SpotifyDataImpl implements SpotifyDataService {
             in.close();
             con.disconnect();
 
-
-            JSONObject jsonObject = new JSONObject(content.toString());
-            JSONArray items = new JSONArray();
-
-            Map<String, String> tokenMap = new HashMap<>();
-            for(String key : jsonObject.keySet()) {
-                tokenMap.put(key, String.valueOf(jsonObject.get(key)));
-                if (key.equals("items")) {
-                    items = jsonObject.getJSONArray(key);
-                }
-            }
-
-            spotifyData.setTopGenre(content.toString().substring(0, 50));
-
-            // setting recent tracks and deleting old ones
-            if (spotifyData.getRecentTracks().size() > 0) {
-                for (Track t : spotifyData.getRecentTracks()) {
-                    trackRepository.delete(t);
-                }
-            }
-            spotifyData.setRecentTracks(addTracksToSpotifyData(items));
-
-            spotifyDataRepository.save(spotifyData);
-            return spotifyData;
+            return content.toString();
         } catch(IOException exception) {
             log.error(exception.getMessage());
             return null;
         }
     }
 
-    public Set<Track> addTracksToSpotifyData(JSONArray spotifyDataJSON) {
-        log.info("getting tracks");
+    public String getTopArtistsFromSpotifyApi(SpotifyData spotifyData) {
+        try {
+            // connection
+            URL url = new URL(spotifyTopArtistsUrl);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            con.setDoOutput(true);
+            con.setInstanceFollowRedirects(false);
+
+            // authentication
+            String auth = spotifyData.getSpotifyAccessToken();
+            String authHeader = "Bearer " + auth;
+            con.setRequestProperty("Authorization", authHeader);
+
+            con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            con.setRequestProperty("charset", "utf-8");
+            con.setUseCaches(false);
+
+            // reading response
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer content = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+            in.close();
+            con.disconnect();
+
+            return content.toString();
+        } catch(IOException exception) {
+            log.error(exception.getMessage());
+            return null;
+        }
+    }
+
+    public String getTopTracksFromSpotifyApi(SpotifyData spotifyData) {
+        try {
+            // connection
+            URL url = new URL(spotifyTopTracksUrl);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            con.setDoOutput(true);
+            con.setInstanceFollowRedirects(false);
+
+            // authentication
+            String auth = spotifyData.getSpotifyAccessToken();
+            String authHeader = "Bearer " + auth;
+            con.setRequestProperty("Authorization", authHeader);
+
+            con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            con.setRequestProperty("charset", "utf-8");
+            con.setUseCaches(false);
+
+            // reading response
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer content = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+            in.close();
+            con.disconnect();
+
+            return content.toString();
+        } catch(IOException exception) {
+            log.error(exception.getMessage());
+            return null;
+        }
+    }
+
+    public Set<Track> addRecentTracksToSpotifyData(JSONArray spotifyDataJSON) {
+        log.info("getting recently played tracks");
         JSONObject jsonObject = null;
         JSONObject temp = null;
         Set<Track> trackSet = new HashSet<>();
@@ -282,6 +406,61 @@ public class SpotifyDataImpl implements SpotifyDataService {
         }
 
         return trackSet;
+    }
+
+    public Set<Track> addTopTracksToSpotifyData(JSONArray spotifyDataJSON) {
+        log.info("getting top tracks");
+        JSONObject jsonObject = null;
+        JSONObject temp = null;
+        Set<Track> trackSet = new HashSet<>();
+        Track track = new Track();
+
+        for(int i = 0; i < spotifyDataJSON.length(); i++) {
+            track = new Track();
+            jsonObject = spotifyDataJSON.getJSONObject(i);
+            track.setSongName(jsonObject.get("name").toString());
+            track.setUri(jsonObject.get("uri").toString());
+
+            temp = (JSONObject) jsonObject.getJSONObject("album").getJSONArray("artists").get(0);
+            track.setArtist(temp.get("name").toString());
+
+            temp = (JSONObject) jsonObject.getJSONObject("album").getJSONArray("images").get(0);
+            track.setArtwork(temp.get("url").toString());
+
+            trackRepository.save(track);
+            trackSet.add(track);
+        }
+
+        return trackSet;
+    }
+
+    public Set<Artist> addTopArtistsToSpotifyData(JSONArray spotifyDataJSON) {
+        log.info("getting top artists");
+        JSONObject jsonObject = null;
+        JSONObject temp = null;
+        Set<Artist> artistSet = new HashSet<>();
+        Artist artist = new Artist();
+
+        for(int i = 0; i < spotifyDataJSON.length(); i++) {
+            artist = new Artist();
+            jsonObject = spotifyDataJSON.getJSONObject(i);
+            artist.setName(jsonObject.get("name").toString());
+            artist.setUri(jsonObject.get("uri").toString());
+
+            String genreString = "";
+            for (int j = 0; j < jsonObject.getJSONArray("genres").length(); j++) {
+                genreString += jsonObject.getJSONArray("genres").get(j) + "$";
+            }
+            artist.setGenre(genreString);
+
+            temp = (JSONObject) jsonObject.getJSONArray("images").get(0);
+            artist.setImageUrl(temp.get("url").toString());
+
+            artistRepository.save(artist);
+            artistSet.add(artist);
+        }
+
+        return artistSet;
     }
 
 }

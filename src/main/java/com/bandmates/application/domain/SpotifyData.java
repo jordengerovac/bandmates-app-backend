@@ -22,6 +22,12 @@ public class SpotifyData {
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Track> recentTracks;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Track> topTracks;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Artist> topArtists;
+
     private String spotifyAccessToken;
 
     private String spotifyRefreshToken;

@@ -241,9 +241,16 @@ public class SpotifyDataImpl implements SpotifyDataService {
             }
 
             spotifyData.setTopGenre(content.toString().substring(0, 50));
-            spotifyData.setRecentTracks(addTracksToSpotifyData(items));
-            spotifyDataRepository.save(spotifyData);
 
+            // setting recent tracks and deleting old ones
+            if (spotifyData.getRecentTracks().size() > 0) {
+                for (Track t : spotifyData.getRecentTracks()) {
+                    trackRepository.delete(t);
+                }
+            }
+            spotifyData.setRecentTracks(addTracksToSpotifyData(items));
+
+            spotifyDataRepository.save(spotifyData);
             return spotifyData;
         } catch(IOException exception) {
             log.error(exception.getMessage());

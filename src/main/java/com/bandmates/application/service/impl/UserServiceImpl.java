@@ -101,8 +101,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public AppUser updateUser(AppUser user, Long id) {
-        Optional<AppUser> oldUser = userRepository.findById(id);
+        log.info("Updating user {}", user.getUsername());
 
+        Optional<AppUser> oldUser = userRepository.findById(id);
         if (oldUser.isPresent()) {
             if (user.getUsername() != null)
                 oldUser.get().setUsername(user.getUsername());

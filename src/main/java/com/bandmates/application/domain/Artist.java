@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Data
@@ -18,7 +19,8 @@ public class Artist {
 
     private String name;
 
-    private String genre;
+    @ElementCollection(targetClass=String.class)
+    private Set<String> genres;
 
     private String uri;
 

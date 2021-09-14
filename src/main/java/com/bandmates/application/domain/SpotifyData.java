@@ -17,7 +17,8 @@ public class SpotifyData {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String topGenre;
+    @ElementCollection(targetClass=String.class)
+    private Set<String> topGenres;
 
     @OneToMany(fetch = FetchType.EAGER)
     private Set<Track> recentTracks;

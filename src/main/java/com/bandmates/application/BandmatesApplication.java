@@ -16,6 +16,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 @SpringBootApplication
 public class BandmatesApplication {
@@ -30,11 +31,11 @@ public class BandmatesApplication {
 			userService.saveRole(new Role(null, "ROLE_USER"));
 			userService.saveRole(new Role(null, "ROLE_ADMIN"));
 
-			userService.saveUser(new AppUser(null, "Tim", "Tyler", "tt@gmail.com", "password", new ArrayList<>(), null));
-			userService.saveUser(new AppUser(null, "Jordan", "Scott", "js@gmail.com", "password", new ArrayList<>(), null));
+			userService.saveUser(new AppUser(null, "Tim", "Tyler", "tt@gmail.com", "password", new HashSet<>(), null));
+			userService.saveUser(new AppUser(null, "Michael", "Scott", "ms@gmail.com", "password", new HashSet<>(), null));
 
 			userService.addRoleToUser("tt@gmail.com", "ROLE_USER");
-			userService.addRoleToUser("js@gmail.com", "ROLE_USER");
+			userService.addRoleToUser("ms@gmail.com", "ROLE_USER");
 		};
 	}
 

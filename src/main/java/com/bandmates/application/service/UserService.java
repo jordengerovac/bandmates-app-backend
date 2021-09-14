@@ -18,6 +18,8 @@ public interface UserService {
 
     List<AppUser> getAllUsers();
 
+    List<Role> getAllRoles();
+
     List<AppUser> searchUsers(Specification<AppUser> specification);
 
     Profile getUserProfile(String username);

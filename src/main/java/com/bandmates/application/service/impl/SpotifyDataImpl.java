@@ -1,9 +1,6 @@
 package com.bandmates.application.service.impl;
 
-import com.bandmates.application.domain.Artist;
-import com.bandmates.application.domain.Profile;
-import com.bandmates.application.domain.SpotifyData;
-import com.bandmates.application.domain.Track;
+import com.bandmates.application.domain.*;
 import com.bandmates.application.repository.ArtistRepository;
 import com.bandmates.application.repository.ProfileRepository;
 import com.bandmates.application.repository.SpotifyDataRepository;
@@ -207,7 +204,9 @@ public class SpotifyDataImpl implements SpotifyDataService {
 
     @Override
     public SpotifyData fetchUpdatedSpotifyData(String username) {
+        AppUser user = userService.getUser(username);
         Profile profile = userService.getUserProfile(username);
+        List<Role> roles = userService.getAllRoles();
         SpotifyData spotifyData = profile.getSpotifyData();
         getSpotifyRefreshToken(spotifyData.getId());
 
@@ -266,18 +265,18 @@ public class SpotifyDataImpl implements SpotifyDataService {
         }
         spotifyData.setTopArtists(addTopArtistsToSpotifyData(items));
 
+
         // TODO: update this with top artists data
         spotifyData.setTopGenre("Psych$Rock$Blues$");
 
 
-        spotifyDataRepository.save(spotifyData);
-        return spotifyData;
+        return spotifyDataRepository.save(spotifyData);
     }
 
     public String getRecentTracksFromSpotifyApi(SpotifyData spotifyData) {
         try {
             // connection
-            URL url = new URL(spotifyRecentlyPlayedUrl);
+            URL url = new URL(spotifyRecentlyPlayedUrl + "?limit=15");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
             con.setDoOutput(true);
@@ -313,7 +312,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
     public String getTopArtistsFromSpotifyApi(SpotifyData spotifyData) {
         try {
             // connection
-            URL url = new URL(spotifyTopArtistsUrl);
+            URL url = new URL(spotifyTopArtistsUrl + "?limit=5");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
             con.setDoOutput(true);
@@ -349,7 +348,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
     public String getTopTracksFromSpotifyApi(SpotifyData spotifyData) {
         try {
             // connection
-            URL url = new URL(spotifyTopTracksUrl);
+            URL url = new URL(spotifyTopTracksUrl + "?limit=5");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
             con.setDoOutput(true);
@@ -387,24 +386,22 @@ public class SpotifyDataImpl implements SpotifyDataService {
         JSONObject jsonObject = null;
         JSONObject temp = null;
         Set<Track> trackSet = new HashSet<>();
-        Track track = new Track();
+        Track track = null;
 
         for(int i = 0; i < spotifyDataJSON.length(); i++) {
-            track = new Track();
             jsonObject = spotifyDataJSON.getJSONObject(i);
-            track.setSongName(jsonObject.getJSONObject("track").get("name").toString());
-            track.setUri(jsonObject.getJSONObject("track").get("uri").toString());
+            String songName = jsonObject.getJSONObject("track").get("name").toString();
+            String uri = jsonObject.getJSONObject("track").get("uri").toString();
 
             temp = (JSONObject) jsonObject.getJSONObject("track").getJSONObject("album").getJSONArray("artists").get(0);
-            track.setArtist(temp.get("name").toString());
+            String name = temp.get("name").toString();
 
             temp = (JSONObject) jsonObject.getJSONObject("track").getJSONObject("album").getJSONArray("images").get(0);
-            track.setArtwork(temp.get("url").toString());
+            String artwork = temp.get("url").toString();
 
-            trackRepository.save(track);
-            trackSet.add(track);
+            trackSet.add(new Track(null, name, songName, uri, artwork));
         }
-
+        trackRepository.saveAll(trackSet);
         return trackSet;
     }
 

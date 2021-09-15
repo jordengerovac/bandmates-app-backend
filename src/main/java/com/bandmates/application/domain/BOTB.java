@@ -22,6 +22,11 @@ public class BOTB {
     @OneToMany(mappedBy = "botb", fetch = FetchType.EAGER)
     private Set<AppUser> users;
 
+    // {username, track}
     @ElementCollection
-    private Set<Track> tracksAdded;
+    private Map<String, Track> tracksAdded;
+
+    // {username, songId}
+    @ElementCollection
+    private Map<String, String> trackVotes;
 }

@@ -6,23 +6,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Track {
+public class Artist {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String artist;
+    private String name;
 
-    private String songName;
+    @ElementCollection(targetClass=String.class)
+    private Set<String> genres;
 
     private String uri;
 
-    private String artwork;
+    private String imageUrl;
 
     private String seedId;
 }

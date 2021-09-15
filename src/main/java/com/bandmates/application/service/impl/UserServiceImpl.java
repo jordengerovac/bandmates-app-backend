@@ -17,10 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -68,6 +65,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         log.info("Adding role {} to user {}", roleName, username);
         AppUser user = userRepository.findByUsername(username);
         Role role = roleRepository.findByName(roleName);
+
         user.getRoles().add(role);
     }
 
@@ -84,6 +82,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public List<Role> getAllRoles() {
+        log.info("Fetching all roles from database");
+        return roleRepository.findAll();
+    }
+
+    @Override
     public List<AppUser> searchUsers(Specification<AppUser> specification) {
         log.info("Searching users in database");
         return userRepository.findAll(Specification.where(specification));
@@ -97,6 +101,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public AppUser updateUser(AppUser user, Long id) {
+        log.info("Updating user {}", user.getUsername());
+
         Optional<AppUser> oldUser = userRepository.findById(id);
         if (oldUser.isPresent()) {
             if (user.getUsername() != null)
@@ -109,6 +115,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 oldUser.get().setPassword(user.getPassword());
             if (user.getPassword() != null)
                 oldUser.get().setProfile(user.getProfile());
+            if (!user.getRoles().isEmpty()) {
+                oldUser.get().setRoles(user.getRoles());
+            }
 
             return userRepository.save(oldUser.get());
         }

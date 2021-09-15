@@ -41,6 +41,11 @@ public class UserResource {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @GetMapping("/roles")
+    public ResponseEntity<List<Role>> getAllRoles() {
+        return ResponseEntity.ok(userService.getAllRoles());
+    }
+
     @GetMapping("/users/{username}")
     public ResponseEntity<AppUser> getUser(@PathVariable  String username) {
         return ResponseEntity.ok(userService.getUser(username));
@@ -74,8 +79,8 @@ public class UserResource {
     }
 
     @PostMapping("/roles/add-to-user")
-    public ResponseEntity<?> addRoleToUser(@RequestBody RoleToUserForm form) {
-        userService.addRoleToUser(form.getUsername(), form.getUsername());
+    public ResponseEntity<?> addRoleToUser(@RequestParam String username, @RequestParam String roleName) {
+        userService.addRoleToUser(username, roleName);
         return ResponseEntity.ok().build();
     }
 

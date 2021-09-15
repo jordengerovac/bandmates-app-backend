@@ -2,13 +2,11 @@ package com.bandmates.application.service.impl;
 
 import com.bandmates.application.domain.AppUser;
 import com.bandmates.application.domain.Profile;
-import com.bandmates.application.domain.Role;
 import com.bandmates.application.repository.ProfileRepository;
 import com.bandmates.application.repository.UserRepository;
 import com.bandmates.application.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -68,6 +66,10 @@ public class ProfileServiceImpl implements ProfileService {
                 oldProfile.get().setBio(profile.getBio());
             if (profile.getSpotifyData() != null)
                 oldProfile.get().setSpotifyData(profile.getSpotifyData());
+            if (profile.getLocation() != null)
+                oldProfile.get().setLocation(profile.getLocation());
+            if (profile.getInstrument() != null)
+                oldProfile.get().setInstrument(profile.getInstrument());
 
             return profileRepository.save(oldProfile.get());
         }

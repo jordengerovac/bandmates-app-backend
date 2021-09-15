@@ -19,7 +19,7 @@ public class Artist {
 
     private String name;
 
-    @ElementCollection(targetClass=String.class)
+    @ElementCollection
     private Set<String> genres;
 
     private String uri;

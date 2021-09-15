@@ -23,4 +23,6 @@ public class Track {
     private String uri;
 
     private String artwork;
+
+    private String seedId;
 }

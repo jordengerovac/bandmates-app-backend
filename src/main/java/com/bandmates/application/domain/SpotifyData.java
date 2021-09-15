@@ -27,6 +27,9 @@ public class SpotifyData {
     private Set<Track> topTracks;
 
     @OneToMany(fetch = FetchType.EAGER)
+    private Set<Track> recommendedTracks;
+
+    @OneToMany(fetch = FetchType.EAGER)
     private Set<Artist> topArtists;
 
     private String spotifyAccessToken;

@@ -25,4 +25,6 @@ public class Artist {
     private String uri;
 
     private String imageUrl;
+
+    private String seedId;
 }

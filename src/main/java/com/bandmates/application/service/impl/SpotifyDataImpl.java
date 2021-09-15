@@ -214,10 +214,11 @@ public class SpotifyDataImpl implements SpotifyDataService {
         SpotifyData spotifyData = profile.getSpotifyData();
         getSpotifyRefreshToken(spotifyData.getId());
 
+
+        // setting recent tracks and deleting old ones
         String recentTracks = getRecentTracksFromSpotifyApi(spotifyData);
         JSONObject jsonObject = new JSONObject(recentTracks);
         JSONArray items = new JSONArray();
-
         Map<String, String> tokenMap = new HashMap<>();
         for(String key : jsonObject.keySet()) {
             tokenMap.put(key, String.valueOf(jsonObject.get(key)));
@@ -225,13 +226,11 @@ public class SpotifyDataImpl implements SpotifyDataService {
                 items = jsonObject.getJSONArray(key);
             }
         }
-
-
-        // setting recent tracks and deleting old ones
         for (Track t : spotifyData.getRecentTracks()) {
             trackRepository.delete(t);
         }
-        spotifyData.setRecentTracks(addRecentTracksToSpotifyData(items));
+        Set<Track> recentTracksSet = addRecentTracksToSpotifyData(items);
+        spotifyData.setRecentTracks(recentTracksSet);
 
 
         // setting top tracks and deleting old ones
@@ -249,14 +248,14 @@ public class SpotifyDataImpl implements SpotifyDataService {
         for (Track t : spotifyData.getTopTracks()) {
             trackRepository.delete(t);
         }
-        spotifyData.setTopTracks(addTopTracksToSpotifyData(items));
+        Set<Track> topTracksSet = addTopTracksToSpotifyData(items);
+        spotifyData.setTopTracks(topTracksSet);
 
 
         // setting top artists and deleting old ones
         String topArtists = getTopArtistsFromSpotifyApi(spotifyData);
         jsonObject = new JSONObject(topArtists);
         items = new JSONArray();
-
         tokenMap = new HashMap<>();
         for(String key : jsonObject.keySet()) {
             tokenMap.put(key, String.valueOf(jsonObject.get(key)));
@@ -270,7 +269,28 @@ public class SpotifyDataImpl implements SpotifyDataService {
         Set<Artist> topArtistsSet = addTopArtistsToSpotifyData(items);
         spotifyData.setTopArtists(topArtistsSet);
 
-        spotifyData.setTopGenres(addTopGenresToSpotifyData(topArtistsSet));
+
+        // setting genres
+        Set<String> genresSet = addTopGenresToSpotifyData(topArtistsSet);
+        spotifyData.setTopGenres(genresSet);
+
+
+        // setting recommendations
+        String recommendedTracks = getRecommendationsFromSpotifyApi(spotifyData, topTracksSet, topArtistsSet, genresSet);
+        jsonObject = new JSONObject(recommendedTracks);
+        items = new JSONArray();
+
+        tokenMap = new HashMap<>();
+        for(String key : jsonObject.keySet()) {
+            tokenMap.put(key, String.valueOf(jsonObject.get(key)));
+            if (key.equals("tracks")) {
+                items = jsonObject.getJSONArray(key);
+            }
+        }
+        for (Track t : spotifyData.getRecommendedTracks()) {
+            trackRepository.delete(t);
+        }
+        spotifyData.setRecommendedTracks(addTopTracksToSpotifyData(items));
 
 
         return spotifyDataRepository.save(spotifyData);
@@ -279,7 +299,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
     public String getRecentTracksFromSpotifyApi(SpotifyData spotifyData) {
         try {
             // connection
-            URL url = new URL(spotifyRecentlyPlayedUrl + "?limit=20");
+            URL url = new URL(spotifyRecentlyPlayedUrl + "?limit=10");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
             con.setDoOutput(true);
@@ -315,7 +335,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
     public String getTopArtistsFromSpotifyApi(SpotifyData spotifyData) {
         try {
             // connection
-            URL url = new URL(spotifyTopArtistsUrl + "?limit=30");
+            URL url = new URL(spotifyTopArtistsUrl + "?limit=5");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
             con.setDoOutput(true);
@@ -348,11 +368,45 @@ public class SpotifyDataImpl implements SpotifyDataService {
         }
     }
 
-    public String getRecommendationsFromSpotifyApi(SpotifyData spotifyData) {
+    public String getRecommendationsFromSpotifyApi(SpotifyData spotifyData, Set<Track> trackSeeds,
+                                                   Set<Artist> artistSeeds, Set<String> genreSeeds) {
+        // building url params
+        String urlWithSeeds = spotifyRecommendationsUrl + "?seed_artists=";
+        int size = artistSeeds.size();
+        int randomItem = new Random().nextInt(size); // In real life, the Random object should be rather more shared than this
+        int i = 0;
+        for(Artist artist : artistSeeds)
+        {
+            if (i == randomItem)
+                urlWithSeeds += artist.getSeedId();
+            i++;
+        }
+
+        urlWithSeeds += "&seed_tracks=";
+        size = trackSeeds.size();
+        randomItem = new Random().nextInt(size); // In real life, the Random object should be rather more shared than this
+        i = 0;
+        for(Track track : trackSeeds)
+        {
+            if (i == randomItem)
+                urlWithSeeds += track.getSeedId();
+            i++;
+        }
+        urlWithSeeds += "&seed_genres=";
+        size = genreSeeds.size();
+        randomItem = new Random().nextInt(size); // In real life, the Random object should be rather more shared than this
+        i = 0;
+        for(String genre : genreSeeds)
+        {
+            if (i == randomItem)
+                urlWithSeeds += genre;
+            i++;
+        }
+        urlWithSeeds += "&limit=10";
+
         try {
             // connection
-            // TODO: add seeds
-            URL url = new URL(spotifyRecommendationsUrl);
+            URL url = new URL(urlWithSeeds);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
             con.setDoOutput(true);
@@ -432,6 +486,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
             jsonObject = spotifyDataJSON.getJSONObject(i);
             String songName = jsonObject.getJSONObject("track").get("name").toString();
             String uri = jsonObject.getJSONObject("track").get("uri").toString();
+            String seedId = jsonObject.getJSONObject("track").get("id").toString();
 
             temp = (JSONObject) jsonObject.getJSONObject("track").getJSONObject("album").getJSONArray("artists").get(0);
             String name = temp.get("name").toString();
@@ -439,7 +494,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
             temp = (JSONObject) jsonObject.getJSONObject("track").getJSONObject("album").getJSONArray("images").get(0);
             String artwork = temp.get("url").toString();
 
-            trackSet.add(new Track(null, name, songName, uri, artwork));
+            trackSet.add(new Track(null, name, songName, uri, artwork, seedId));
         }
         trackRepository.saveAll(trackSet);
         return trackSet;
@@ -457,6 +512,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
             jsonObject = spotifyDataJSON.getJSONObject(i);
             track.setSongName(jsonObject.get("name").toString());
             track.setUri(jsonObject.get("uri").toString());
+            track.setSeedId(jsonObject.get(("id")).toString());
 
             temp = (JSONObject) jsonObject.getJSONObject("album").getJSONArray("artists").get(0);
             track.setArtist(temp.get("name").toString());
@@ -483,6 +539,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
             jsonObject = spotifyDataJSON.getJSONObject(i);
             artist.setName(jsonObject.get("name").toString());
             artist.setUri(jsonObject.get("uri").toString());
+            artist.setSeedId(jsonObject.get(("id")).toString());
 
             Set<String> genreSet = new HashSet<>();
             for (int j = 0; j < jsonObject.getJSONArray("genres").length(); j++) {

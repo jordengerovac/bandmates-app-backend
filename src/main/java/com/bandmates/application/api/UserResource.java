@@ -63,7 +63,9 @@ public class UserResource {
         if (existingUser != null) {
             return ResponseEntity.badRequest().body(null);
         }
-        return ResponseEntity.created(uri).body(userService.saveUser(user));
+        AppUser savedUser = userService.saveUser(user);
+        userService.addRoleToUser(savedUser.getUsername(), "ROLE_USER");
+        return ResponseEntity.created(uri).body(savedUser);
     }
 
     @PutMapping("/users/update/{id}")

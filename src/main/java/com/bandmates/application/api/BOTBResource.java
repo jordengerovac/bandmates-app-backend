@@ -2,6 +2,7 @@ package com.bandmates.application.api;
 
 import com.bandmates.application.domain.BOTB;
 import com.bandmates.application.domain.Profile;
+import com.bandmates.application.domain.Track;
 import com.bandmates.application.service.BOTBService;
 import com.bandmates.application.service.ProfileService;
 import com.bandmates.application.service.UserService;
@@ -57,6 +58,22 @@ public class BOTBResource {
     public ResponseEntity<BOTB> addUserToBOTB(@PathVariable Long botbId, @PathVariable String username) {
         BOTB fetchedBOTB = botbService.getBOTB(botbId);
         fetchedBOTB.getUsers().add(userService.getUser(username));
+        botbService.saveBOTB(fetchedBOTB);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/botb/tracks/add/{username}/{botbId}")
+    public ResponseEntity<BOTB> addTrackToBOTB(@RequestBody Track track, @PathVariable String username, @PathVariable Long botbId) {
+        BOTB fetchedBOTB = botbService.getBOTB(botbId);
+        fetchedBOTB.getTracksAdded().put(username, track);
+        botbService.saveBOTB(fetchedBOTB);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/botb/votes/add/{username}/{botbId}")
+    public ResponseEntity<BOTB> voteOnBOTBTrack(@RequestBody Track track, @PathVariable String username, @PathVariable Long botbId) {
+        BOTB fetchedBOTB = botbService.getBOTB(botbId);
+        fetchedBOTB.getTrackVotes().put(username, track);
         botbService.saveBOTB(fetchedBOTB);
         return ResponseEntity.ok().build();
     }

@@ -26,7 +26,7 @@ public class BOTB {
     @ElementCollection
     private Map<String, Track> tracksAdded;
 
-    // {username, songId}
+    // {username, track}
     @ElementCollection
-    private Map<String, String> trackVotes;
+    private Map<String, Track> trackVotes;
 }

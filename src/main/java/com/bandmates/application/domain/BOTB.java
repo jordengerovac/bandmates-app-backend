@@ -19,6 +19,8 @@ public class BOTB {
 
     private String urlSlug;
 
+    private String name;
+
     @ElementCollection
     private Set<String> users = new HashSet<>();
 

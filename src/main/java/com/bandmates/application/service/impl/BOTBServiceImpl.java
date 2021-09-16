@@ -79,7 +79,10 @@ public class BOTBServiceImpl implements BOTBService {
             Set<String> usersSet = botb.get().getUsers();
             usersSet.add(username);
             botb.get().setUsers(usersSet);
-            user.setBotb(botb.get());
+
+            Set<BOTB> botbSet = user.getBotb();
+            botbSet.add(botb.get());
+            user.setBotb(botbSet);
         }
         else {
             log.error("BOTB not found");

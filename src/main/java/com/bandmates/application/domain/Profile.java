@@ -18,6 +18,10 @@ public class Profile {
 
     private String bio;
 
+    private String location;
+
+    private String instrument;
+
     @Lob
     private String image;
 

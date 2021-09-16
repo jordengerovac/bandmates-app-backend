@@ -25,4 +25,6 @@ public class Track {
     private String artwork;
 
     private String seedId;
+
+    private Integer votes;
 }

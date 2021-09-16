@@ -31,8 +31,8 @@ public class BandmatesApplication {
 			userService.saveRole(new Role(null, "ROLE_USER"));
 			userService.saveRole(new Role(null, "ROLE_ADMIN"));
 
-			userService.saveUser(new AppUser(null, "Tim", "Tyler", "tt@gmail.com", "password", new HashSet<>(), null));
-			userService.saveUser(new AppUser(null, "Michael", "Scott", "ms@gmail.com", "password", new HashSet<>(), null));
+			userService.saveUser(new AppUser(null, "Tim", "Tyler", "tt@gmail.com", "password", new HashSet<>(), null, null));
+			userService.saveUser(new AppUser(null, "Michael", "Scott", "ms@gmail.com", "password", new HashSet<>(), null, null));
 
 			userService.addRoleToUser("tt@gmail.com", "ROLE_USER");
 			userService.addRoleToUser("ms@gmail.com", "ROLE_USER");

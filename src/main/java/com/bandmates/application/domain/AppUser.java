@@ -33,4 +33,7 @@ public class AppUser {
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Profile profile;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private BOTB botb;
 }

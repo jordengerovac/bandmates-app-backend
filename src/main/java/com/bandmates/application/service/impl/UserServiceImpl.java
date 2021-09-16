@@ -1,6 +1,7 @@
 package com.bandmates.application.service.impl;
 
 import com.bandmates.application.domain.AppUser;
+import com.bandmates.application.domain.BOTB;
 import com.bandmates.application.domain.Profile;
 import com.bandmates.application.domain.Role;
 import com.bandmates.application.repository.RoleRepository;
@@ -118,6 +119,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             if (!user.getRoles().isEmpty()) {
                 oldUser.get().setRoles(user.getRoles());
             }
+            if (user.getBotb() != null)
+                oldUser.get().setBotb(user.getBotb());
 
             return userRepository.save(oldUser.get());
         }

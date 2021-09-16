@@ -1,7 +1,6 @@
 package com.bandmates.application.service;
 
 import com.bandmates.application.domain.SpotifyData;
-import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Map;

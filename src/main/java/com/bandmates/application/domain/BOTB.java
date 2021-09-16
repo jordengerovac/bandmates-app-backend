@@ -1,10 +1,10 @@
 package com.bandmates.application.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,14 +19,14 @@ public class BOTB {
 
     private String urlSlug;
 
-    @OneToMany(mappedBy = "botb", fetch = FetchType.EAGER)
-    private Set<AppUser> users;
+    @ElementCollection
+    private Set<String> users = new HashSet<>();
 
     // {username, track}
     @ElementCollection
-    private Map<String, Track> tracksAdded;
+    private Map<String, Track> tracksAdded = new HashMap<>();
 
     // {username, track}
     @ElementCollection
-    private Map<String, Track> trackVotes;
+    private Map<String, Track> trackVotes = new HashMap<>();
 }

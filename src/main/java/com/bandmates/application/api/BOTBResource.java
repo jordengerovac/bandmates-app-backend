@@ -1,10 +1,8 @@
 package com.bandmates.application.api;
 
 import com.bandmates.application.domain.BOTB;
-import com.bandmates.application.domain.Profile;
 import com.bandmates.application.domain.Track;
 import com.bandmates.application.service.BOTBService;
-import com.bandmates.application.service.ProfileService;
 import com.bandmates.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,20 +48,19 @@ public class BOTBResource {
     public ResponseEntity<BOTB> createBOTBForUser(@RequestBody BOTB botb, @PathVariable String username) {
         BOTB createdBOTB = botbService.saveBOTB(botb);
         botbService.addBOTBToUser(createdBOTB.getId(), username);
-        botbService.addUserToBOTB(createdBOTB.getId(), username);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/botb/users/add/{username}/{botbId}")
-    public ResponseEntity<BOTB> addUserToBOTB(@PathVariable Long botbId, @PathVariable String username) {
+    public ResponseEntity<?> addUserToBOTB(@PathVariable Long botbId, @PathVariable String username) {
         BOTB fetchedBOTB = botbService.getBOTB(botbId);
-        fetchedBOTB.getUsers().add(userService.getUser(username));
+        fetchedBOTB.getUsers().add(username);
         botbService.saveBOTB(fetchedBOTB);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/botb/tracks/add/{username}/{botbId}")
-    public ResponseEntity<BOTB> addTrackToBOTB(@RequestBody Track track, @PathVariable String username, @PathVariable Long botbId) {
+    public ResponseEntity<?> addTrackToBOTB(@RequestBody Track track, @PathVariable String username, @PathVariable Long botbId) {
         BOTB fetchedBOTB = botbService.getBOTB(botbId);
         fetchedBOTB.getTracksAdded().put(username, track);
         botbService.saveBOTB(fetchedBOTB);
@@ -71,7 +68,7 @@ public class BOTBResource {
     }
 
     @PostMapping("/botb/votes/add/{username}/{botbId}")
-    public ResponseEntity<BOTB> voteOnBOTBTrack(@RequestBody Track track, @PathVariable String username, @PathVariable Long botbId) {
+    public ResponseEntity<?> voteOnBOTBTrack(@RequestBody Track track, @PathVariable String username, @PathVariable Long botbId) {
         BOTB fetchedBOTB = botbService.getBOTB(botbId);
         fetchedBOTB.getTrackVotes().put(username, track);
         botbService.saveBOTB(fetchedBOTB);

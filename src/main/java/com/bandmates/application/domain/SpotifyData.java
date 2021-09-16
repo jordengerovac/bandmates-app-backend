@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -18,19 +19,19 @@ public class SpotifyData {
     private Long id;
 
     @ElementCollection
-    private Set<String> topGenres;
+    private Set<String> topGenres = new HashSet<>();
 
     @OneToMany(fetch = FetchType.EAGER)
-    private Set<Track> recentTracks;
+    private Set<Track> recentTracks = new HashSet<>();
 
     @OneToMany(fetch = FetchType.EAGER)
-    private Set<Track> topTracks;
+    private Set<Track> topTracks = new HashSet<>();
 
     @OneToMany(fetch = FetchType.EAGER)
-    private Set<Track> recommendedTracks;
+    private Set<Track> recommendedTracks = new HashSet<>();
 
     @OneToMany(fetch = FetchType.EAGER)
-    private Set<Artist> topArtists;
+    private Set<Artist> topArtists = new HashSet<>();
 
     private String spotifyAccessToken;
 

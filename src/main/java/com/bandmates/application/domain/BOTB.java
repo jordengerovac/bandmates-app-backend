@@ -21,6 +21,10 @@ public class BOTB {
 
     private String name;
 
+    private String startDate;
+
+    private String endDate;
+
     @ElementCollection
     private Set<String> users = new HashSet<>();
 

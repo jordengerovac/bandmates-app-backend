@@ -9,6 +9,8 @@ public interface BOTBService {
 
     BOTB getBOTB(Long botbId);
 
+    BOTB getBOTBByUrlSlug(String urlSlug);
+
     List<BOTB> getAllBOTBs();
 
     BOTB updateBOTB(BOTB botb, Long botbId);

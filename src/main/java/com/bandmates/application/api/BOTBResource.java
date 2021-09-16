@@ -3,7 +3,6 @@ package com.bandmates.application.api;
 import com.bandmates.application.domain.BOTB;
 import com.bandmates.application.domain.Track;
 import com.bandmates.application.service.BOTBService;
-import com.bandmates.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +19,6 @@ import java.util.List;
 public class BOTBResource {
     private final BOTBService botbService;
 
-    private final UserService userService;
-
     @GetMapping("/botb")
     public ResponseEntity<List<BOTB>> getAllBOTBs() {
         return ResponseEntity.ok(botbService.getAllBOTBs());
@@ -30,6 +27,11 @@ public class BOTBResource {
     @GetMapping("/botb/{botbId}")
     public ResponseEntity<BOTB> getBOTB(@PathVariable Long botbId) {
         return ResponseEntity.ok(botbService.getBOTB(botbId));
+    }
+
+    @GetMapping("/botb/slug/{urlSlug}")
+    public ResponseEntity<BOTB> getBOTBByUrlSlug(@PathVariable String urlSlug) {
+        return ResponseEntity.ok(botbService.getBOTBByUrlSlug(urlSlug));
     }
 
     @PostMapping("/botb/create")

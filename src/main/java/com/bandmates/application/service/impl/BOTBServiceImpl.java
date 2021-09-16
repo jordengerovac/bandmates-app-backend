@@ -36,6 +36,12 @@ public class BOTBServiceImpl implements BOTBService {
     }
 
     @Override
+    public BOTB getBOTBByUrlSlug(String urlSlug) {
+        log.info("Fetching botb {} from database", urlSlug);
+        return botbRepository.findByUrlSlug(urlSlug);
+    }
+
+    @Override
     public List<BOTB> getAllBOTBs() {
         return botbRepository.findAll();
     }
@@ -50,6 +56,10 @@ public class BOTBServiceImpl implements BOTBService {
                 oldBOTB.get().setUrlSlug(botb.getUrlSlug());
             if (botb.getTracksAdded() != null)
                 oldBOTB.get().setTracksAdded(botb.getTracksAdded());
+            if (botb.getStartDate() != null)
+                oldBOTB.get().setStartDate(botb.getStartDate());
+            if (botb.getEndDate() != null)
+                oldBOTB.get().setEndDate(botb.getEndDate());
 
             return botbRepository.save(oldBOTB.get());
         }

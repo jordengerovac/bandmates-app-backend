@@ -2,6 +2,7 @@ package com.bandmates.application.api;
 
 import com.bandmates.application.domain.BOTB;
 import com.bandmates.application.domain.Track;
+import com.bandmates.application.repository.TrackRepository;
 import com.bandmates.application.service.BOTBService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -18,6 +21,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BOTBResource {
     private final BOTBService botbService;
+
+    private final TrackRepository trackRepository;
 
     @GetMapping("/botb")
     public ResponseEntity<List<BOTB>> getAllBOTBs() {
@@ -62,18 +67,23 @@ public class BOTBResource {
     }
 
     @PostMapping("/botb/tracks/add/{username}/{botbId}")
-    public ResponseEntity<?> addTrackToBOTB(@RequestBody Track track, @PathVariable String username, @PathVariable Long botbId) {
+    public ResponseEntity<BOTB> addTrackToBOTB(@RequestBody Track track, @PathVariable String username, @PathVariable Long botbId) {
         BOTB fetchedBOTB = botbService.getBOTB(botbId);
-        fetchedBOTB.getTracksAdded().put(username, track);
-        botbService.saveBOTB(fetchedBOTB);
-        return ResponseEntity.ok().build();
+        Track newTrack = trackRepository.save(track);
+        Map<String, Track> tracksAddedMap = fetchedBOTB.getTracksAdded();
+        tracksAddedMap.put(username, newTrack);
+        fetchedBOTB.setTracksAdded(tracksAddedMap);
+        return ResponseEntity.ok(botbService.saveBOTB(fetchedBOTB));
     }
 
     @PostMapping("/botb/votes/add/{username}/{botbId}")
-    public ResponseEntity<?> voteOnBOTBTrack(@RequestBody Track track, @PathVariable String username, @PathVariable Long botbId) {
+    public ResponseEntity<BOTB> voteOnBOTBTrack(@PathVariable String username, @PathVariable Long botbId) {
         BOTB fetchedBOTB = botbService.getBOTB(botbId);
-        fetchedBOTB.getTrackVotes().put(username, track);
-        botbService.saveBOTB(fetchedBOTB);
-        return ResponseEntity.ok().build();
+        Optional<Track> trackVotedOn = trackRepository.findById(botbId);
+        fetchedBOTB.getTrackVotes().put(username, trackVotedOn.get());
+        Map<String, Track> trackVotesMap = fetchedBOTB.getTrackVotes();
+        trackVotesMap.put(username, trackVotedOn.get());
+        fetchedBOTB.setTrackVotes(trackVotesMap);
+        return ResponseEntity.ok(botbService.saveBOTB(fetchedBOTB));
     }
 }

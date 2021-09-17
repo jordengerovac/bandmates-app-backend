@@ -61,6 +61,7 @@ public class BOTBResource {
     public ResponseEntity<?> addUserToBOTB(@PathVariable Long botbId, @PathVariable String username) {
         BOTB fetchedBOTB = botbService.getBOTB(botbId);
         fetchedBOTB.getUsers().add(username);
+        botbService.addBOTBToUser(fetchedBOTB.getId(), username);
         botbService.saveBOTB(fetchedBOTB);
         return ResponseEntity.ok().build();
     }
@@ -80,6 +81,15 @@ public class BOTBResource {
         BOTB fetchedBOTB = botbService.getBOTB(botbId);
         Map<String, String> trackVotesMap = fetchedBOTB.getTrackVotes();
         trackVotesMap.put(username, seedId);
+        fetchedBOTB.setTrackVotes(trackVotesMap);
+        return ResponseEntity.ok(botbService.saveBOTB(fetchedBOTB));
+    }
+
+    @PostMapping("/botb/votes/remove/{username}/{seedId}/{botbId}")
+    public ResponseEntity<BOTB> removeVoteFromBOTBTrack(@PathVariable String username, @PathVariable String seedId, @PathVariable Long botbId) {
+        BOTB fetchedBOTB = botbService.getBOTB(botbId);
+        Map<String, String> trackVotesMap = fetchedBOTB.getTrackVotes();
+        trackVotesMap.remove(username, seedId);
         fetchedBOTB.setTrackVotes(trackVotesMap);
         return ResponseEntity.ok(botbService.saveBOTB(fetchedBOTB));
     }

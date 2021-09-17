@@ -32,7 +32,7 @@ public class BOTB {
     @ElementCollection
     private Map<String, Track> tracksAdded = new HashMap<>();
 
-    // {username, track}
+    // {username, seedId}
     @ElementCollection
-    private Map<String, Track> trackVotes = new HashMap<>();
+    private Map<String, String> trackVotes = new HashMap<>();
 }

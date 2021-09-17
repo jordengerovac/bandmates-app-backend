@@ -13,7 +13,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -76,13 +75,11 @@ public class BOTBResource {
         return ResponseEntity.ok(botbService.saveBOTB(fetchedBOTB));
     }
 
-    @PostMapping("/botb/votes/add/{username}/{botbId}")
-    public ResponseEntity<BOTB> voteOnBOTBTrack(@PathVariable String username, @PathVariable Long botbId) {
+    @PostMapping("/botb/votes/add/{username}/{seedId}/{botbId}")
+    public ResponseEntity<BOTB> voteOnBOTBTrack(@PathVariable String username, @PathVariable String seedId, @PathVariable Long botbId) {
         BOTB fetchedBOTB = botbService.getBOTB(botbId);
-        Optional<Track> trackVotedOn = trackRepository.findById(botbId);
-        fetchedBOTB.getTrackVotes().put(username, trackVotedOn.get());
-        Map<String, Track> trackVotesMap = fetchedBOTB.getTrackVotes();
-        trackVotesMap.put(username, trackVotedOn.get());
+        Map<String, String> trackVotesMap = fetchedBOTB.getTrackVotes();
+        trackVotesMap.put(username, seedId);
         fetchedBOTB.setTrackVotes(trackVotesMap);
         return ResponseEntity.ok(botbService.saveBOTB(fetchedBOTB));
     }

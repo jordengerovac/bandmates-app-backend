@@ -1,7 +1,6 @@
 package com.bandmates.application.service.impl;
 
 import com.bandmates.application.domain.AppUser;
-import com.bandmates.application.domain.BOTB;
 import com.bandmates.application.domain.Profile;
 import com.bandmates.application.domain.Role;
 import com.bandmates.application.repository.RoleRepository;

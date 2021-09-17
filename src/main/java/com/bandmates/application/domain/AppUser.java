@@ -1,13 +1,10 @@
 package com.bandmates.application.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,6 +31,6 @@ public class AppUser {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Profile profile;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private BOTB botb;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<BOTB> botb;
 }

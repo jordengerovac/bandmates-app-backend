@@ -1,11 +1,9 @@
 package com.bandmates.application.api;
 
 import com.bandmates.application.domain.BOTB;
-import com.bandmates.application.domain.Profile;
 import com.bandmates.application.domain.Track;
+import com.bandmates.application.repository.TrackRepository;
 import com.bandmates.application.service.BOTBService;
-import com.bandmates.application.service.ProfileService;
-import com.bandmates.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +12,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -22,7 +21,7 @@ import java.util.List;
 public class BOTBResource {
     private final BOTBService botbService;
 
-    private final UserService userService;
+    private final TrackRepository trackRepository;
 
     @GetMapping("/botb")
     public ResponseEntity<List<BOTB>> getAllBOTBs() {
@@ -32,6 +31,11 @@ public class BOTBResource {
     @GetMapping("/botb/{botbId}")
     public ResponseEntity<BOTB> getBOTB(@PathVariable Long botbId) {
         return ResponseEntity.ok(botbService.getBOTB(botbId));
+    }
+
+    @GetMapping("/botb/slug/{urlSlug}")
+    public ResponseEntity<BOTB> getBOTBByUrlSlug(@PathVariable String urlSlug) {
+        return ResponseEntity.ok(botbService.getBOTBByUrlSlug(urlSlug));
     }
 
     @PostMapping("/botb/create")
@@ -50,14 +54,14 @@ public class BOTBResource {
     public ResponseEntity<BOTB> createBOTBForUser(@RequestBody BOTB botb, @PathVariable String username) {
         BOTB createdBOTB = botbService.saveBOTB(botb);
         botbService.addBOTBToUser(createdBOTB.getId(), username);
-        botbService.addUserToBOTB(createdBOTB.getId(), username);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/botb/users/add/{username}/{botbId}")
-    public ResponseEntity<BOTB> addUserToBOTB(@PathVariable Long botbId, @PathVariable String username) {
+    public ResponseEntity<?> addUserToBOTB(@PathVariable Long botbId, @PathVariable String username) {
         BOTB fetchedBOTB = botbService.getBOTB(botbId);
-        fetchedBOTB.getUsers().add(userService.getUser(username));
+        fetchedBOTB.getUsers().add(username);
+        botbService.addBOTBToUser(fetchedBOTB.getId(), username);
         botbService.saveBOTB(fetchedBOTB);
         return ResponseEntity.ok().build();
     }
@@ -65,16 +69,28 @@ public class BOTBResource {
     @PostMapping("/botb/tracks/add/{username}/{botbId}")
     public ResponseEntity<BOTB> addTrackToBOTB(@RequestBody Track track, @PathVariable String username, @PathVariable Long botbId) {
         BOTB fetchedBOTB = botbService.getBOTB(botbId);
-        fetchedBOTB.getTracksAdded().put(username, track);
-        botbService.saveBOTB(fetchedBOTB);
-        return ResponseEntity.ok().build();
+        Track newTrack = trackRepository.save(track);
+        Map<String, Track> tracksAddedMap = fetchedBOTB.getTracksAdded();
+        tracksAddedMap.put(username, newTrack);
+        fetchedBOTB.setTracksAdded(tracksAddedMap);
+        return ResponseEntity.ok(botbService.saveBOTB(fetchedBOTB));
     }
 
-    @PostMapping("/botb/votes/add/{username}/{botbId}")
-    public ResponseEntity<BOTB> voteOnBOTBTrack(@RequestBody Track track, @PathVariable String username, @PathVariable Long botbId) {
+    @PostMapping("/botb/votes/add/{username}/{seedId}/{botbId}")
+    public ResponseEntity<BOTB> voteOnBOTBTrack(@PathVariable String username, @PathVariable String seedId, @PathVariable Long botbId) {
         BOTB fetchedBOTB = botbService.getBOTB(botbId);
-        fetchedBOTB.getTrackVotes().put(username, track);
-        botbService.saveBOTB(fetchedBOTB);
-        return ResponseEntity.ok().build();
+        Map<String, String> trackVotesMap = fetchedBOTB.getTrackVotes();
+        trackVotesMap.put(username, seedId);
+        fetchedBOTB.setTrackVotes(trackVotesMap);
+        return ResponseEntity.ok(botbService.saveBOTB(fetchedBOTB));
+    }
+
+    @PostMapping("/botb/votes/remove/{username}/{seedId}/{botbId}")
+    public ResponseEntity<BOTB> removeVoteFromBOTBTrack(@PathVariable String username, @PathVariable String seedId, @PathVariable Long botbId) {
+        BOTB fetchedBOTB = botbService.getBOTB(botbId);
+        Map<String, String> trackVotesMap = fetchedBOTB.getTrackVotes();
+        trackVotesMap.remove(username, seedId);
+        fetchedBOTB.setTrackVotes(trackVotesMap);
+        return ResponseEntity.ok(botbService.saveBOTB(fetchedBOTB));
     }
 }

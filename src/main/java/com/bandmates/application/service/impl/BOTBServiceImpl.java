@@ -2,7 +2,6 @@ package com.bandmates.application.service.impl;
 
 import com.bandmates.application.domain.AppUser;
 import com.bandmates.application.domain.BOTB;
-import com.bandmates.application.domain.Profile;
 import com.bandmates.application.repository.BOTBRepository;
 import com.bandmates.application.repository.UserRepository;
 import com.bandmates.application.service.BOTBService;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +36,12 @@ public class BOTBServiceImpl implements BOTBService {
     }
 
     @Override
+    public BOTB getBOTBByUrlSlug(String urlSlug) {
+        log.info("Fetching botb {} from database", urlSlug);
+        return botbRepository.findByUrlSlug(urlSlug);
+    }
+
+    @Override
     public List<BOTB> getAllBOTBs() {
         return botbRepository.findAll();
     }
@@ -50,6 +56,10 @@ public class BOTBServiceImpl implements BOTBService {
                 oldBOTB.get().setUrlSlug(botb.getUrlSlug());
             if (botb.getTracksAdded() != null)
                 oldBOTB.get().setTracksAdded(botb.getTracksAdded());
+            if (botb.getStartDate() != null)
+                oldBOTB.get().setStartDate(botb.getStartDate());
+            if (botb.getEndDate() != null)
+                oldBOTB.get().setEndDate(botb.getEndDate());
 
             return botbRepository.save(oldBOTB.get());
         }
@@ -59,10 +69,11 @@ public class BOTBServiceImpl implements BOTBService {
     @Override
     public void addUserToBOTB(Long botbId, String username) {
         log.info("Adding user {} to botb {}", username, botbId);
-        AppUser user = userRepository.findByUsername(username);
         Optional<BOTB> botb = botbRepository.findById(botbId);
         if (botb.isPresent()) {
-            botb.get().getUsers().add(user);
+            Set<String> usersSet = botb.get().getUsers();
+            usersSet.add(username);
+            botb.get().setUsers(usersSet);
         }
         else {
             log.error("BOTB not found");
@@ -75,8 +86,13 @@ public class BOTBServiceImpl implements BOTBService {
         AppUser user = userRepository.findByUsername(username);
         Optional<BOTB> botb = botbRepository.findById(botbId);
         if (botb.isPresent()) {
-            botb.get().getUsers().add(user);
-            user.setBotb(botb.get());
+            Set<String> usersSet = botb.get().getUsers();
+            usersSet.add(username);
+            botb.get().setUsers(usersSet);
+
+            Set<BOTB> botbSet = user.getBotb();
+            botbSet.add(botb.get());
+            user.setBotb(botbSet);
         }
         else {
             log.error("BOTB not found");

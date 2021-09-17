@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class ProfileResource {
     }
 
     @PostMapping("/profiles/users/{username}")
-    public ResponseEntity<Profile> createProfileForUser(@RequestBody Profile profile, @PathVariable String username) {
+    public ResponseEntity<?> createProfileForUser(@RequestBody Profile profile, @PathVariable String username) {
         Profile createdProfile = profileService.saveProfile(profile);
         profileService.addProfileToUser(username, createdProfile.getId());
         return ResponseEntity.ok().build();

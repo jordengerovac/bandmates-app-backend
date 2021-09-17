@@ -29,6 +29,6 @@ public class Profile {
     private SpotifyData spotifyData;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("profile")
+    @JsonIgnoreProperties(value = {"profile", "botb"})
     private AppUser user;
 }

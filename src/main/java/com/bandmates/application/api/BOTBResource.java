@@ -93,4 +93,10 @@ public class BOTBResource {
         fetchedBOTB.setTrackVotes(trackVotesMap);
         return ResponseEntity.ok(botbService.saveBOTB(fetchedBOTB));
     }
+
+    @DeleteMapping("/botb/{botbId}")
+    public ResponseEntity<?> deleteBOTB(@PathVariable Long botbId) {
+        botbService.deleteBOTB(botbId);
+        return ResponseEntity.ok().build();
+    }
 }

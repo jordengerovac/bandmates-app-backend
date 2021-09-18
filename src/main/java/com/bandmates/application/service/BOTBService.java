@@ -15,6 +15,8 @@ public interface BOTBService {
 
     BOTB updateBOTB(BOTB botb, Long botbId);
 
+    void deleteBOTB(Long botbId);
+
     void addUserToBOTB(Long botbId, String username);
 
     void addBOTBToUser(Long botbId, String username);

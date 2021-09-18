@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -64,6 +65,17 @@ public class BOTBServiceImpl implements BOTBService {
             return botbRepository.save(oldBOTB.get());
         }
         return null;
+    }
+
+    @Override
+    public void deleteBOTB(Long botbId) {
+        log.info("Deleting botb {}", botbId);
+        BOTB botb = botbRepository.getById(botbId);
+        for(String user : botb.getUsers()) {
+            AppUser appUser = userRepository.findByUsername(user);
+            appUser.setBotb(new HashSet<>());
+        }
+        botbRepository.deleteById(botbId);
     }
 
     @Override

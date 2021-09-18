@@ -32,5 +32,5 @@ public class AppUser {
     private Profile profile;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    private Set<BOTB> botb;
+    private Set<BOTB> botb = new HashSet<>();
 }

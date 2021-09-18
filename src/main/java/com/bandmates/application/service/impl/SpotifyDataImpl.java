@@ -276,7 +276,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
 
 
         // setting recommendations
-        String recommendedTracks = getRecommendationsFromSpotifyApi(spotifyData, topTracksSet, topArtistsSet, genresSet);
+        String recommendedTracks = getRecommendationsFromSpotifyApi(spotifyData, topTracksSet, topArtistsSet);
         jsonObject = new JSONObject(recommendedTracks);
         items = new JSONArray();
 
@@ -369,11 +369,11 @@ public class SpotifyDataImpl implements SpotifyDataService {
     }
 
     public String getRecommendationsFromSpotifyApi(SpotifyData spotifyData, Set<Track> trackSeeds,
-                                                   Set<Artist> artistSeeds, Set<String> genreSeeds) {
+                                                   Set<Artist> artistSeeds) {
         // building url params
         String urlWithSeeds = spotifyRecommendationsUrl + "?seed_artists=";
         int size = artistSeeds.size();
-        int randomItem = new Random().nextInt(size); // In real life, the Random object should be rather more shared than this
+        int randomItem = new Random().nextInt(size);
         int i = 0;
         for(Artist artist : artistSeeds)
         {
@@ -384,22 +384,12 @@ public class SpotifyDataImpl implements SpotifyDataService {
 
         urlWithSeeds += "&seed_tracks=";
         size = trackSeeds.size();
-        randomItem = new Random().nextInt(size); // In real life, the Random object should be rather more shared than this
+        randomItem = new Random().nextInt(size);
         i = 0;
         for(Track track : trackSeeds)
         {
             if (i == randomItem)
                 urlWithSeeds += track.getSeedId();
-            i++;
-        }
-        urlWithSeeds += "&seed_genres=";
-        size = genreSeeds.size();
-        randomItem = new Random().nextInt(size); // In real life, the Random object should be rather more shared than this
-        i = 0;
-        for(String genre : genreSeeds)
-        {
-            if (i == randomItem)
-                urlWithSeeds += genre;
             i++;
         }
         urlWithSeeds += "&limit=10";

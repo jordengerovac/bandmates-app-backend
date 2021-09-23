@@ -25,4 +25,8 @@ public interface UserService {
     Profile getUserProfile(String username);
 
     AppUser updateUser(AppUser user, Long id);
+
+    AppUser confirmUserRegistration(String emailRegistrationToken);
+
+    void sendConfirmationEmail(AppUser user);
 }

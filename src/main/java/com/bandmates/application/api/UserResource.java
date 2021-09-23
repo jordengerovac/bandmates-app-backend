@@ -8,11 +8,13 @@ import com.bandmates.application.domain.AppUser;
 import com.bandmates.application.domain.Profile;
 import com.bandmates.application.domain.Role;
 import com.bandmates.application.service.UserService;
+import com.bandmates.application.util.MailSenderUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sipios.springsearch.anotation.SearchSpec;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -68,6 +70,22 @@ public class UserResource {
         return ResponseEntity.created(uri).body(savedUser);
     }
 
+    @PostMapping("/users/register")
+    public ResponseEntity<AppUser> registerUser(@RequestBody AppUser user) {
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v1/user/register").toUriString());
+        AppUser existingUser = userService.getUser(user.getUsername());
+        if (existingUser != null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        AppUser savedUser = userService.saveUser(user);
+        userService.addRoleToUser(savedUser.getUsername(), "ROLE_USER");
+
+        // send email with confirmation link
+        userService.sendConfirmationEmail(savedUser);
+
+        return ResponseEntity.created(uri).body(savedUser);
+    }
+
     @PutMapping("/users/update/{id}")
     public ResponseEntity<AppUser> updateUser(@RequestBody AppUser user, @PathVariable Long id) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v1/user/update").toUriString());
@@ -87,8 +105,13 @@ public class UserResource {
     }
 
     @GetMapping("/users/query")
-    public ResponseEntity<List<AppUser>> searchForCars(@SearchSpec Specification<AppUser> specs) {
+    public ResponseEntity<List<AppUser>> searchForUsers(@SearchSpec Specification<AppUser> specs) {
         return ResponseEntity.ok(userService.searchUsers(Specification.where(specs)));
+    }
+
+    @GetMapping("/users/confirm/{emailRegistrationToken}")
+    public ResponseEntity<AppUser> confirmUserRegistration(@PathVariable String emailRegistrationToken) {
+        return ResponseEntity.ok(userService.confirmUserRegistration(emailRegistrationToken));
     }
 
     @GetMapping("/token/refresh")
@@ -102,6 +125,9 @@ public class UserResource {
                 DecodedJWT decodedJWT = jwtVerifier.verify(refresh_token);
                 String username = decodedJWT.getSubject();
                 AppUser user = userService.getUser(username);
+                if (!user.getUserEnabled()) {
+                    throw new Exception("User has not been confirmed through email token");
+                }
                 String access_token = JWT.create().withSubject(user.getUsername())
                         .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
                         .withIssuer(request.getRequestURL().toString())

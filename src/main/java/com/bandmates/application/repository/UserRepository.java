@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface UserRepository extends JpaRepository<AppUser, Long>, JpaSpecificationExecutor<AppUser> {
     AppUser findByUsername(String username);
+    AppUser findByEmailRegistrationToken(String emailRegistrationToken);
 }

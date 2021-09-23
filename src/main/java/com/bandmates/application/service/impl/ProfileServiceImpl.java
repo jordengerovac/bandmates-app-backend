@@ -121,7 +121,7 @@ public class ProfileServiceImpl implements ProfileService {
                 latLongY = profile.get().getLocation().split(",");
                 distance = calculateDistance(Double.parseDouble(latLongX[0]), Double.parseDouble(latLongY[0]),
                         Double.parseDouble(latLongX[1]), Double.parseDouble(latLongY[1]));
-                if (distance <= 1000) {
+                if (distance <= 100) {
                     nearbyProfiles.add(p);
                 }
             }

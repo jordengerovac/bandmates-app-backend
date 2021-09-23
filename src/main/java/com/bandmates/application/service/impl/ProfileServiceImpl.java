@@ -70,6 +70,10 @@ public class ProfileServiceImpl implements ProfileService {
                 oldProfile.get().setLocation(profile.getLocation());
             if (profile.getInstrument() != null)
                 oldProfile.get().setInstrument(profile.getInstrument());
+            if (profile.getIconColour() != null)
+                oldProfile.get().setIconColour(profile.getIconColour());
+            if (profile.getIconName() != null)
+                oldProfile.get().setIconName(profile.getIconName());
 
             return profileRepository.save(oldProfile.get());
         }

@@ -22,8 +22,13 @@ public class Profile {
 
     private String instrument;
 
+    // not being used currently
     @Lob
     private String image;
+
+    private String iconName;
+
+    private String iconColour;
 
     @OneToOne(fetch = FetchType.EAGER)
     private SpotifyData spotifyData;

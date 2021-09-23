@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -103,5 +104,45 @@ public class ProfileServiceImpl implements ProfileService {
             log.error(exception.getMessage());
             return null;
         }
+    }
+
+    @Override
+    public List<Profile> getNearbyProfiles(String username) {
+        List<Profile> allProfiles = profileRepository.findAll();
+        AppUser user = userRepository.findByUsername(username);
+        Profile profile = user.getProfile();
+        List<Profile> nearbyProfiles = new ArrayList<>();
+
+        double distance;
+        String[] latLongX;
+        String[] latLongY;
+        if (profile != null) {
+            for(Profile p : allProfiles) {
+                if (!p.getLocation().isEmpty() && !profile.getLocation().isEmpty() && p != profile) {
+                    latLongX = p.getLocation().split(",");
+                    latLongY = profile.getLocation().split(",");
+                    distance = calculateDistance(Double.parseDouble(latLongX[0]), Double.parseDouble(latLongY[0]),
+                            Double.parseDouble(latLongX[1]), Double.parseDouble(latLongY[1]));
+                    if (distance <= 100) {
+                        nearbyProfiles.add(p);
+                    }
+                }
+            }
+        }
+        return nearbyProfiles;
+    }
+
+    private double calculateDistance(double latitudeX, double latitudeY, double longitudeX, double longitudeY) {
+        int radius = 6371; // radius of the earth in kilometres
+        double latitudeDelta = convertDegreesToRadians(latitudeY - latitudeX);
+        double longitudeDelta = convertDegreesToRadians(longitudeY - longitudeX);
+        double a = Math.sin(latitudeDelta / 2) * Math.sin(latitudeDelta / 2) + Math.cos(convertDegreesToRadians(latitudeX))
+                * Math.cos(convertDegreesToRadians(latitudeY)) * Math.sin(longitudeDelta / 2) * Math.sin(longitudeDelta / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return radius * c; // distance
+    }
+
+    private double convertDegreesToRadians(double degrees) {
+        return degrees * (Math.PI / 180);
     }
 }

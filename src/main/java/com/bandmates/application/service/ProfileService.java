@@ -14,6 +14,8 @@ public interface ProfileService {
 
     List<Profile> getAllProfiles();
 
+    List<Profile> getNearbyProfiles(String username);
+
     Profile updateProfile(Profile profile, Long id);
 
     Profile addImageToProfile(Long id, MultipartFile file);

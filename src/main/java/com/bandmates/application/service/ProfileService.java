@@ -14,7 +14,7 @@ public interface ProfileService {
 
     List<Profile> getAllProfiles();
 
-    List<Profile> getNearbyProfiles(Long profileId);
+    List<Profile> getNearbyProfiles(String username);
 
     Profile updateProfile(Profile profile, Long id);
 

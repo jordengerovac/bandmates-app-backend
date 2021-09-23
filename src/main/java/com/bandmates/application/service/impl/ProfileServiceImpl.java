@@ -107,22 +107,25 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public List<Profile> getNearbyProfiles(Long profileId) {
+    public List<Profile> getNearbyProfiles(String username) {
         List<Profile> allProfiles = profileRepository.findAll();
-        Optional<Profile> profile = profileRepository.findById(profileId);
+        AppUser user = userRepository.findByUsername(username);
+        Profile profile = user.getProfile();
         List<Profile> nearbyProfiles = new ArrayList<>();
 
         double distance;
         String[] latLongX;
         String[] latLongY;
-        if (profile.isPresent()) {
+        if (profile != null) {
             for(Profile p : allProfiles) {
-                latLongX = p.getLocation().split(",");
-                latLongY = profile.get().getLocation().split(",");
-                distance = calculateDistance(Double.parseDouble(latLongX[0]), Double.parseDouble(latLongY[0]),
-                        Double.parseDouble(latLongX[1]), Double.parseDouble(latLongY[1]));
-                if (distance <= 100) {
-                    nearbyProfiles.add(p);
+                if (!p.getLocation().isEmpty() && !profile.getLocation().isEmpty() && p != profile) {
+                    latLongX = p.getLocation().split(",");
+                    latLongY = profile.getLocation().split(",");
+                    distance = calculateDistance(Double.parseDouble(latLongX[0]), Double.parseDouble(latLongY[0]),
+                            Double.parseDouble(latLongX[1]), Double.parseDouble(latLongY[1]));
+                    if (distance <= 100) {
+                        nearbyProfiles.add(p);
+                    }
                 }
             }
         }

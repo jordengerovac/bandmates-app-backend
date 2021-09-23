@@ -35,7 +35,7 @@ public class AppUser {
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<BOTB> botb = new HashSet<>();
 
-    private Boolean userEnabled = false;
+    private Boolean userEnabled;
 
     private String emailRegistrationToken = UUID.randomUUID().toString();
 }

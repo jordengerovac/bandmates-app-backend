@@ -77,6 +77,7 @@ public class UserResource {
         if (existingUser != null) {
             return ResponseEntity.badRequest().body(null);
         }
+        user.setUserEnabled(false);
         AppUser savedUser = userService.saveUser(user);
         userService.addRoleToUser(savedUser.getUsername(), "ROLE_USER");
 

@@ -24,6 +24,11 @@ public class ProfileResource {
         return ResponseEntity.ok(profileService.getAllProfiles());
     }
 
+    @GetMapping("/profiles/nearby/{profileId}")
+    public ResponseEntity<List<Profile>> getNearbyProfiles(@PathVariable Long profileId) {
+        return ResponseEntity.ok(profileService.getNearbyProfiles(profileId));
+    }
+
     @GetMapping("/profiles/{profileId}")
     public ResponseEntity<Profile> getProfile(@PathVariable Long profileId) {
         return ResponseEntity.ok(profileService.getProfile(profileId));

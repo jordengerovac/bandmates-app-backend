@@ -119,10 +119,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 oldUser.get().setPassword(user.getPassword());
             if (user.getPassword() != null)
                 oldUser.get().setProfile(user.getProfile());
-            if (!user.getRoles().isEmpty()) {
+            if (!user.getRoles().isEmpty())
                 oldUser.get().setRoles(user.getRoles());
-            }
-            if (user.getBotb() != null)
+            if (!user.getBotb().isEmpty())
                 oldUser.get().setBotb(user.getBotb());
             if (user.getEmailRegistrationToken() != null)
                 oldUser.get().setEmailRegistrationToken(user.getEmailRegistrationToken());

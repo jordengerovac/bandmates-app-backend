@@ -6,8 +6,10 @@ import com.bandmates.application.domain.Role;
 import com.bandmates.application.repository.RoleRepository;
 import com.bandmates.application.repository.UserRepository;
 import com.bandmates.application.service.UserService;
+import com.bandmates.application.util.MailSenderUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,6 +31,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final RoleRepository roleRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final MailSenderUtil mailSenderUtil;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -115,14 +119,32 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 oldUser.get().setPassword(user.getPassword());
             if (user.getPassword() != null)
                 oldUser.get().setProfile(user.getProfile());
-            if (!user.getRoles().isEmpty()) {
+            if (!user.getRoles().isEmpty())
                 oldUser.get().setRoles(user.getRoles());
-            }
-            if (user.getBotb() != null)
+            if (!user.getBotb().isEmpty())
                 oldUser.get().setBotb(user.getBotb());
+            if (user.getEmailRegistrationToken() != null)
+                oldUser.get().setEmailRegistrationToken(user.getEmailRegistrationToken());
+            if (user.getUserEnabled() != null)
+                oldUser.get().setUserEnabled(user.getUserEnabled());
 
             return userRepository.save(oldUser.get());
         }
         return null;
+    }
+
+    @Override
+    public AppUser confirmUserRegistration(String userConfirmationToken) {
+        AppUser user = userRepository.findByEmailRegistrationToken(userConfirmationToken);
+        if (user != null) {
+            user.setUserEnabled(true);
+            return userRepository.save(user);
+        }
+        return null;
+    }
+
+    @Override
+    public void sendConfirmationEmail(AppUser user) {
+        mailSenderUtil.sendConfirmationEmail(user);
     }
 }

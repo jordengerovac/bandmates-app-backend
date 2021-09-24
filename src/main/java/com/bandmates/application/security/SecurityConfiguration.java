@@ -2,6 +2,7 @@ package com.bandmates.application.security;
 
 import com.bandmates.application.filter.CustomAuthenticationFilter;
 import com.bandmates.application.filter.CustomAuthorizationFilter;
+import com.bandmates.application.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,7 @@ import static org.springframework.http.HttpMethod.*;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final UserRepository userRepository;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -37,6 +39,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeRequests().antMatchers("/api/v1/login/**", "/api/v1/token/refresh/**").permitAll();
         http.authorizeRequests().antMatchers(POST, "/api/v1/users/create/**").permitAll();
+        http.authorizeRequests().antMatchers(POST, "/api/v1/users/register/**").permitAll();
+        http.authorizeRequests().antMatchers(GET, "/api/v1/users/confirm/**").permitAll();
         http.authorizeRequests().antMatchers(GET, "/api/v1/users/**").hasAnyAuthority("ROLE_USER");
         http.authorizeRequests().antMatchers(PUT, "/api/v1/users/**").hasAnyAuthority("ROLE_USER");
         http.authorizeRequests().antMatchers(GET, "/api/v1/profiles/**").hasAnyAuthority("ROLE_USER");
@@ -46,7 +50,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers(GET, "/api/v1/spotifydata/**").hasAnyAuthority("ROLE_USER");
         http.authorizeRequests().anyRequest().authenticated();
         http.addFilter(customAuthenticationFilter);
-        http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new CustomAuthorizationFilter(userRepository), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean

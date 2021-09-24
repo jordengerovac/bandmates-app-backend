@@ -1,0 +1,25 @@
+version: "3"
+services:
+  bandmates-app:
+    image: bandmates
+    ports:
+      - "8080:8080"
+    networks:
+      - bandmates-mysql
+    environment:
+      DATABASE_HOST: mysqldb
+    depends_on:
+      - mysqldb
+
+  mysqldb:
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    networks:
+      - bandmates-mysql
+    environment:
+      MYSQL_DATABASE: bandmates
+      MYSQL_ROOT_PASSWORD: password
+
+networks:
+  bandmates-mysql:

@@ -25,6 +25,7 @@ public class BandmatesApplication {
 		SpringApplication.run(BandmatesApplication.class, args);
 	}
 
+	/*
 	@Bean
 	CommandLineRunner run(UserService userService) {
 		return args -> {
@@ -38,6 +39,7 @@ public class BandmatesApplication {
 			userService.addRoleToUser("ms@gmail.com", "ROLE_USER");
 		};
 	}
+	 */
 
 	@Bean
 	PasswordEncoder passwordEncoder() {

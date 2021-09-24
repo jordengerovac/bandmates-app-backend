@@ -51,7 +51,7 @@ public class BOTBServiceImpl implements BOTBService {
     public BOTB updateBOTB(BOTB botb, Long botbId) {
         Optional<BOTB> oldBOTB = botbRepository.findById(botbId);
         if (oldBOTB.isPresent()) {
-            if (botb.getUsers() != null)
+            if (!botb.getUsers().isEmpty())
                 oldBOTB.get().setUsers(botb.getUsers());
             if (botb.getUrlSlug() != null)
                 oldBOTB.get().setUrlSlug(botb.getUrlSlug());
@@ -105,6 +105,8 @@ public class BOTBServiceImpl implements BOTBService {
             Set<BOTB> botbSet = user.getBotb();
             botbSet.add(botb.get());
             user.setBotb(botbSet);
+
+            userRepository.save(user);
         }
         else {
             log.error("BOTB not found");

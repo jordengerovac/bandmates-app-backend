@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -33,4 +34,8 @@ public class AppUser {
 
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<BOTB> botb = new HashSet<>();
+
+    private Boolean userEnabled;
+
+    private String emailRegistrationToken = UUID.randomUUID().toString();
 }

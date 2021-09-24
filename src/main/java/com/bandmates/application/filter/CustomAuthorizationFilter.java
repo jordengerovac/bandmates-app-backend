@@ -41,6 +41,15 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 if (user.getUserEnabled()) {
                     filterChain.doFilter(request, response);;
                 }
+                else {
+                    log.error("User is not enabled yet");
+                    response.setHeader("error", "User is not enabled yet");
+                    response.setStatus(FORBIDDEN.value());
+                    Map<String, String> errorMap = new HashMap<>();
+                    errorMap.put("error_message", "User is not enabled yet");
+                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    new ObjectMapper().writeValue(response.getOutputStream(), errorMap);
+                }
             }
             else {
                 filterChain.doFilter(request, response);

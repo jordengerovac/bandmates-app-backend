@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.cors.CorsConfiguration;
@@ -46,7 +47,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeRequests().antMatchers("/api/v1/login/**", "/api/v1/token/refresh/**").permitAll();
         http.authorizeRequests().antMatchers(OPTIONS, "/api/v1/**").permitAll();
-        http.authorizeRequests().antMatchers(POST, "/api/v1/users/create/**").hasAnyAuthority("ROLE_USER");;
+        http.authorizeRequests().antMatchers(POST, "/api/v1/users/create/**").hasAnyAuthority("ROLE_USER");
         http.authorizeRequests().antMatchers(POST, "/api/v1/users/register/**").permitAll();
         http.authorizeRequests().antMatchers(GET, "/api/v1/users/confirm/**").permitAll();
         http.authorizeRequests().antMatchers(POST, "/api/v1/botb/**").hasAnyAuthority("ROLE_USER");

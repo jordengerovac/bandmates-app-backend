@@ -46,6 +46,9 @@ public class SpotifyDataImpl implements SpotifyDataService {
     @Value("${spotify.clientSecret}")
     private String spotifyClientSecret;
 
+    @Value("${spotify.redirectUri}")
+    private String spotifyRedirectUri;
+
     @Value("${spotify.tokenUrl}")
     private String spotifyTokenUrl;
 
@@ -106,7 +109,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
         try {
             // connection
             URL url = new URL(spotifyTokenUrl);
-            String urlParams = "code=" + code + "&grant_type=authorization_code&redirect_uri=http://localhost:3000/connect-spotify";
+            String urlParams = "code=" + code + "&grant_type=authorization_code&redirect_uri=" + spotifyRedirectUri;
             byte[] urlData = urlParams.getBytes(StandardCharsets.UTF_8);
             int urlDataLength = urlData.length;
             HttpURLConnection con = (HttpURLConnection) url.openConnection();

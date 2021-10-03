@@ -24,6 +24,12 @@ public class ProfileResource {
         return ResponseEntity.ok(profileService.getAllProfiles());
     }
 
+    @DeleteMapping("/profiles/{id}")
+    public ResponseEntity<?> deleteProfile(@PathVariable Long id) {
+        profileService.deleteProfile(id);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/profiles/nearby/{username}")
     public ResponseEntity<List<Profile>> getNearbyProfiles(@PathVariable String username) {
         return ResponseEntity.ok(profileService.getNearbyProfiles(username));

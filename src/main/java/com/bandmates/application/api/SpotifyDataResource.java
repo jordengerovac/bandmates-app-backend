@@ -44,6 +44,12 @@ public class SpotifyDataResource {
         return ResponseEntity.ok(spotifyDataService.fetchUpdatedSpotifyData(username));
     }
 
+    @DeleteMapping("/spotifydata/{id}")
+    public ResponseEntity<?> deleteSpotifyData(@PathVariable Long id) {
+        spotifyDataService.deleteSpotifyData(id);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/spotifydata")
     public ResponseEntity<List<SpotifyData>> getAllSpotifyData() {
         log.info("Fetching all spotify data");

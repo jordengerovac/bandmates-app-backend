@@ -105,7 +105,19 @@ public class SpotifyDataImpl implements SpotifyDataService {
     }
 
     @Override
+    public void deleteSpotifyData(Long id) {
+        SpotifyData spotifyData = spotifyDataRepository.getById(id);
+        log.info("Deleting spotify data {} from the database", id);
+        profileRepository.getById(spotifyData.getProfile().getId()).setSpotifyData(null);
+        spotifyData.setProfile(null);
+        spotifyDataRepository.delete(spotifyData);
+    }
+
+    @Override
     public Map<String, String> getSpotifyTokensFromCode(String code) {
+        log.info("start of spotify tokens method");
+        log.info("code: " + code);
+        log.info("uri: " + spotifyRedirectUri);
         try {
             // connection
             URL url = new URL(spotifyTokenUrl);
@@ -150,6 +162,7 @@ public class SpotifyDataImpl implements SpotifyDataService {
 
             return tokenMap;
         } catch(IOException exception) {
+            log.error("error");
             log.error(exception.getMessage());
             return null;
         }

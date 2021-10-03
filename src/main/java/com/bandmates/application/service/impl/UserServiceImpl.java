@@ -52,6 +52,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public void deleteUser(Long id) {
+        AppUser user = userRepository.getById(id);
+        log.info("Deleting user {} from the database", user.getUsername());
+        userRepository.delete(user);
+    }
+
+    @Override
     public AppUser saveUser(AppUser user) {
         log.info("Adding new user {} to database", user.getUsername());
         user.setPassword(passwordEncoder.encode(user.getPassword()));

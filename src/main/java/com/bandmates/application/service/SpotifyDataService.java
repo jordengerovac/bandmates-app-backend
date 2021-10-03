@@ -21,4 +21,6 @@ public interface SpotifyDataService {
     List<SpotifyData> getAllSpotifyData();
 
     SpotifyData updateSpotifyData(SpotifyData spotifyData, Long id);
+
+    void deleteSpotifyData(Long id);
 }

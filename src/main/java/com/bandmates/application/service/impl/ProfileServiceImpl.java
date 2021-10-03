@@ -33,6 +33,15 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
+    public void deleteProfile(Long id) {
+        Profile profile = profileRepository.getById(id);
+        log.info("Deleting profile {} from the database", id);
+        userRepository.getById(profile.getUser().getId()).setProfile(null);
+        profile.setUser(null);
+        profileRepository.delete(profile);
+    }
+
+    @Override
     public void addProfileToUser(String username, Long profileId) {
         log.info("Adding profile {} to user {}", profileId, username);
         AppUser user = userRepository.findByUsername(username);

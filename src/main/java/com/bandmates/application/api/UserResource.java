@@ -43,13 +43,19 @@ public class UserResource {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUsers(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/roles")
     public ResponseEntity<List<Role>> getAllRoles() {
         return ResponseEntity.ok(userService.getAllRoles());
     }
 
     @GetMapping("/users/{username}")
-    public ResponseEntity<AppUser> getUser(@PathVariable  String username) {
+    public ResponseEntity<AppUser> getUser(@PathVariable String username) {
         return ResponseEntity.ok(userService.getUser(username));
     }
 

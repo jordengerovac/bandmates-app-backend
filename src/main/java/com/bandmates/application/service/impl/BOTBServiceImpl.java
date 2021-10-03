@@ -73,7 +73,7 @@ public class BOTBServiceImpl implements BOTBService {
         BOTB botb = botbRepository.getById(botbId);
         for(String user : botb.getUsers()) {
             AppUser appUser = userRepository.findByUsername(user);
-            appUser.setBotb(new HashSet<>());
+            appUser.getBotb().remove(botb);
         }
         botbRepository.deleteById(botbId);
     }

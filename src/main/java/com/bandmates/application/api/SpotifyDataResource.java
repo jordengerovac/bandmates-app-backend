@@ -45,7 +45,7 @@ public class SpotifyDataResource {
     }
 
     @DeleteMapping("/spotifydata/{id}")
-    public ResponseEntity<?> deleteSpotifyData(Long id) {
+    public ResponseEntity<?> deleteSpotifyData(@PathVariable Long id) {
         spotifyDataService.deleteSpotifyData(id);
         return ResponseEntity.ok().build();
     }

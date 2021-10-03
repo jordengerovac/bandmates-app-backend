@@ -108,6 +108,8 @@ public class SpotifyDataImpl implements SpotifyDataService {
     public void deleteSpotifyData(Long id) {
         SpotifyData spotifyData = spotifyDataRepository.getById(id);
         log.info("Deleting spotify data {} from the database", id);
+        profileRepository.getById(spotifyData.getProfile().getId()).setSpotifyData(null);
+        spotifyData.setProfile(null);
         spotifyDataRepository.delete(spotifyData);
     }
 

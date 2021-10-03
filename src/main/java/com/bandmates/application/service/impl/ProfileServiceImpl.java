@@ -36,6 +36,8 @@ public class ProfileServiceImpl implements ProfileService {
     public void deleteProfile(Long id) {
         Profile profile = profileRepository.getById(id);
         log.info("Deleting profile {} from the database", id);
+        userRepository.getById(profile.getUser().getId()).setProfile(null);
+        profile.setUser(null);
         profileRepository.delete(profile);
     }
 

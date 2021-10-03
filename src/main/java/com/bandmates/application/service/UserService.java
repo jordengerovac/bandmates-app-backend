@@ -10,6 +10,8 @@ import java.util.List;
 public interface UserService {
     AppUser saveUser(AppUser user);
 
+    void deleteUser(Long id);
+
     Role saveRole(Role role);
 
     void addRoleToUser(String username, String roleName);

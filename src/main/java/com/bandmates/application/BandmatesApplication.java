@@ -44,6 +44,7 @@ public class BandmatesApplication {
 
 			userService.addRoleToUser("tt@test-bandmates.com", "ROLE_USER");
 			userService.addRoleToUser("ms@test-bandmates.com", "ROLE_USER");
+			userService.addRoleToUser("ms@test-bandmates.com", "ROLE_ADMIN");
 		};
 	}
 

@@ -43,6 +43,12 @@ public class UserResource {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUsers(Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/roles")
     public ResponseEntity<List<Role>> getAllRoles() {
         return ResponseEntity.ok(userService.getAllRoles());

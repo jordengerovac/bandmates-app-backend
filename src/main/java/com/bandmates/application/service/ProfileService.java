@@ -19,4 +19,6 @@ public interface ProfileService {
     Profile updateProfile(Profile profile, Long id);
 
     Profile addImageToProfile(Long id, MultipartFile file);
+
+    void deleteProfile(Long id);
 }

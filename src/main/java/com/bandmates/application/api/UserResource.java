@@ -8,13 +8,12 @@ import com.bandmates.application.domain.AppUser;
 import com.bandmates.application.domain.Profile;
 import com.bandmates.application.domain.Role;
 import com.bandmates.application.service.UserService;
-import com.bandmates.application.util.MailSenderUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sipios.springsearch.anotation.SearchSpec;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +36,9 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 @RequiredArgsConstructor
 public class UserResource {
     private final UserService userService;
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
     @GetMapping("/users")
     public ResponseEntity<List<AppUser>> getAllUsers() {
@@ -127,7 +129,7 @@ public class UserResource {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             try {
                 String refresh_token = authorizationHeader.substring("Bearer ".length());
-                Algorithm algorithm = Algorithm.HMAC256("jwt_secret_bandmates".getBytes());
+                Algorithm algorithm = Algorithm.HMAC256(jwtSecret.getBytes());
                 JWTVerifier jwtVerifier = JWT.require(algorithm).build();
                 DecodedJWT decodedJWT = jwtVerifier.verify(refresh_token);
                 String username = decodedJWT.getSubject();
